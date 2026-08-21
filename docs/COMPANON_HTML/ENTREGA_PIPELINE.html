@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O que a pipeline entrega</title>
+<style>
+  :root {
+    --ivory:#FAF9F5; --paper:#FFFFFF; --slate:#141413;
+    --clay:#D97757; --clay-d:#B85C3E; --clay-bg:#FDF6F2;
+    --oat:#E3DACC;
+    --olive:#788C5D; --olive-d:#5E7047; --olive-bg:#F1F5EA;
+    --ice:#5F7A8A; --ice-d:#4A626F; --ice-bg:#EDF2F5;
+    --g100:#F0EEE6; --g200:#E6E3DA; --g300:#D1CFC5; --g500:#87867F; --g700:#3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin:0; background:var(--ivory); color:var(--slate);
+         font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px 170px; }
+
+  header.page-head { padding: 56px 0 8px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.12em;
+             text-transform:uppercase; color:var(--g500); margin-bottom:18px;
+             display:flex; align-items:center; gap:12px; }
+  .eyebrow::before { content:""; width:24px; height:1.5px; background:var(--clay); flex:none; }
+  h1 { font-family:var(--serif); font-weight:500; font-size:clamp(32px,4.6vw,46px);
+       line-height:1.08; letter-spacing:-.018em; margin:0 0 10px; }
+  .lede { font-size:16px; color:var(--g700); max-width:660px; margin:0 0 22px; }
+
+  .legend { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 14px; }
+  .lg { display:flex; align-items:flex-start; gap:10px; border:1.5px solid var(--g300);
+        border-radius:10px; background:var(--paper); padding:11px 14px; flex:1 1 230px; min-width:0; }
+  .lg-key { font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.06em;
+            text-transform:uppercase; border-radius:999px; padding:3px 10px; flex:none;
+            color:#fff; margin-top:1px; white-space:nowrap; }
+  .lg-key.de { background:var(--olive); }
+  .lg-key.ns { background:var(--ice); }
+  .lg-key.nc { background:var(--clay); }
+  .lg-txt { font-size:12.5px; color:var(--g700); line-height:1.4; }
+  .legend-nota { font-size:13px; color:var(--g700); margin:0 0 30px; padding-left:14px;
+                 border-left:3px solid var(--oat); max-width:66ch; }
+
+  .placar-topo { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:0 0 26px; }
+  @media (max-width:760px){ .placar-topo{ grid-template-columns:repeat(2,1fr);} }
+  .kpi { border:1.5px solid var(--g300); border-radius:12px; background:var(--paper); padding:14px 16px; }
+  .kpi .n { font-family:var(--serif); font-size:30px; line-height:1; letter-spacing:-.02em; }
+  .kpi .r { font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+            color:var(--g500); margin-top:8px; }
+  .kpi.destaque { border-color:var(--clay); background:var(--clay-bg); }
+  .kpi.destaque .n { color:var(--clay-d); }
+
+  .divider { display:flex; align-items:center; gap:16px; margin:46px 0 26px;
+             font-family:var(--mono); font-size:11.5px; letter-spacing:.14em;
+             text-transform:uppercase; color:var(--g500); white-space:nowrap; }
+  .divider::before, .divider::after { content:""; flex:1; height:1px; background:var(--g300); }
+
+  .artifact { background:var(--paper); border:1.5px solid var(--g300); border-radius:14px;
+              padding:30px clamp(16px,3.5vw,34px); margin-bottom:22px; }
+  .artifact h2 { font-family:var(--serif); font-weight:500; font-size:clamp(23px,3vw,29px);
+                 letter-spacing:-.015em; line-height:1.15; margin:6px 0 6px; }
+  .art-eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+                 text-transform:uppercase; color:var(--g500); display:flex; align-items:center; gap:10px; }
+  .art-eyebrow::before { content:""; width:24px; height:1.5px; background:var(--clay); flex:none; }
+  .art-sub { font-size:14.5px; color:var(--g700); max-width:68ch; margin:0 0 26px; }
+  code { font-family:var(--mono); font-size:12.5px; background:var(--g100); border-radius:5px; padding:1px 5px; }
+
+  .cards { display:flex; flex-direction:column; gap:14px; }
+  .iv { border:1.5px solid var(--g300); border-radius:12px; background:var(--ivory);
+        padding:18px 20px 16px; scroll-margin-top:20px; transition:border-color 140ms, background 140ms; }
+  .iv.st-confere    { border-color:var(--olive); background:var(--olive-bg); }
+  .iv.st-decidido   { border-color:var(--olive); background:var(--olive-bg); }
+  .iv.st-naosei     { border-color:var(--ice);   background:var(--ice-bg); }
+  .iv.st-naoconfere { border-color:var(--clay);  background:var(--clay-bg); }
+  .iv.st-observacao { border-color:var(--clay);  background:var(--clay-bg); }
+  .iv-top { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .iv-num { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--clay-d); flex:none; }
+  .iv h3 { font-family:var(--serif); font-weight:500; font-size:19px; letter-spacing:-.01em;
+           margin:0; flex:1 1 auto; min-width:200px; }
+  .chips { display:flex; gap:8px; align-items:center; flex:none; }
+  .tagx { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.06em;
+          border-radius:999px; padding:3px 10px; border:1.5px solid transparent; }
+  .tagx.ok   { background:#EEF2E6; color:var(--olive); border-color:#C9D4B6; }
+  .tagx.alt  { background:#F8E7DE; color:var(--clay-d); border-color:#EBC5B4; }
+  .tagx.info { background:var(--ice-bg); color:var(--ice-d); border-color:#C7D6DE; }
+  .iv-body { font-size:14px; color:var(--g700); margin:10px 0 0; }
+  .iv-body strong { color:var(--slate); font-weight:600; }
+  .iv-why { display:flex; gap:8px; align-items:baseline; margin-top:10px; font-size:13.5px; color:var(--g700); }
+  .iv-why .tag { font-family:var(--mono); font-size:10px; letter-spacing:.1em;
+                 text-transform:uppercase; color:var(--olive); flex:none; }
+  .iv-why.debate .tag { color:var(--clay-d); }
+  .iv-foot { margin-top:14px; padding-top:12px; border-top:1px dashed var(--g300); }
+
+  .triage { display:flex; gap:7px; flex-wrap:wrap; align-items:center; }
+  .tri { position:relative; display:inline-flex; }
+  .tri input { position:absolute; opacity:0; width:1px; height:1px; margin:-1px; clip:rect(0 0 0 0); }
+  .tri span { display:inline-block; font-family:var(--mono); font-size:11px; font-weight:700;
+              letter-spacing:.05em; padding:6px 14px; border-radius:999px;
+              border:1.5px solid var(--g300); background:var(--paper); color:var(--g700);
+              cursor:pointer; user-select:none; transition:background 120ms,border-color 120ms,color 120ms; }
+  .tri span:hover { border-color:var(--g500); }
+  .tri input:focus-visible + span { outline:2px solid var(--slate); outline-offset:2px; }
+  .tri.sim input:checked + span { background:var(--olive); border-color:var(--olive-d); color:#fff; }
+  .tri.nao input:checked + span { background:var(--clay);  border-color:var(--clay-d);  color:#fff; }
+  .tri.ns  input:checked + span { background:var(--ice);   border-color:var(--ice-d);   color:#fff; }
+
+  .estado { font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.07em;
+            text-transform:uppercase; color:var(--g500); margin-left:auto; padding-left:10px; text-align:right; }
+  .estado.s-confere, .estado.s-decidido { color:var(--olive-d); }
+  .estado.s-naosei { color:var(--ice-d); }
+  .estado.s-naoconfere, .estado.s-observacao { color:var(--clay-d); }
+
+  textarea.cmt { display:block; width:100%; margin-top:10px; font-family:var(--sans);
+                 font-size:13.5px; line-height:1.5; color:var(--slate); background:var(--paper);
+                 border:1.5px solid var(--g300); border-radius:9px; padding:9px 12px;
+                 resize:none; overflow:hidden; min-height:42px;
+                 transition:border-color 120ms, box-shadow 120ms; }
+  textarea.cmt::placeholder { color:var(--g500); }
+  textarea.cmt:focus { outline:none; border-color:var(--clay); box-shadow:0 0 0 3px rgba(217,119,87,.16); }
+  textarea.cmt.preenchida { border-color:var(--clay); }
+
+  .mock { margin:14px 0 2px; border:1.5px solid var(--g300); border-radius:10px;
+          background:var(--paper); overflow-x:auto; }
+  .mock-cap { font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+              color:var(--g500); padding:10px 14px 0; }
+  table.placar { width:100%; border-collapse:collapse; font-size:13.5px; min-width:500px; }
+  table.placar th { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.1em;
+                    text-transform:uppercase; color:var(--g500); text-align:right;
+                    padding:10px 10px 8px; border-bottom:1px solid var(--g200); }
+  table.placar th:first-child { text-align:left; padding-left:14px; }
+  table.placar td { padding:9px 10px; border-bottom:1px solid var(--g100); text-align:right; }
+  table.placar td:first-child { text-align:left; padding-left:14px; font-weight:600; }
+  table.placar tr:last-child td { border-bottom:none; }
+  table.placar tr.fecha { background:var(--clay-bg); }
+  table.placar tr.fecha td:first-child { color:var(--clay-d); }
+  table.placar tr.soma { background:var(--g100); }
+  table.placar tr.soma td { font-weight:700; }
+  .num-zero { color:var(--g300); }
+  .barra { display:inline-block; height:9px; border-radius:2px; background:var(--ice); vertical-align:1px; }
+  .badge { font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.06em;
+           text-transform:uppercase; border-radius:999px; padding:2px 9px; white-space:nowrap; }
+  .badge.on { background:var(--clay); color:#fff; }
+  .badge.off { background:var(--g100); color:var(--g500); border:1px solid var(--g200); }
+  .badge.ok { background:var(--olive); color:#fff; }
+
+  .lista-arq { display:grid; grid-template-columns:repeat(2,1fr); gap:6px 18px; margin-top:6px; }
+  @media (max-width:760px){ .lista-arq{ grid-template-columns:1fr; } }
+  .lista-arq span { font-family:var(--mono); font-size:12px; color:var(--g700);
+                    border-bottom:1px dotted var(--g300); padding:4px 0; }
+  .lista-arq span em { color:var(--g500); font-style:normal; float:right; }
+
+  .notas { counter-reset:nota; display:flex; flex-direction:column; gap:10px; }
+  .nota { display:flex; gap:14px; align-items:flex-start; font-size:13.5px; color:var(--g700); }
+  .nota::before { counter-increment:nota; content:counter(nota);
+                  font-family:var(--serif); font-size:19px; color:var(--clay); line-height:1.2;
+                  flex:none; width:24px; text-align:right; }
+
+  .replybar { position:fixed; left:0; right:0; bottom:0; background:var(--slate);
+              color:var(--ivory); z-index:50; box-shadow:0 -8px 24px rgba(20,20,19,.15); }
+  .replybar-inner { max-width:980px; margin:0 auto; padding:11px 24px;
+                    display:flex; align-items:center; gap:12px; }
+  .rb-counts { display:flex; gap:5px; flex:none; }
+  .rb-pill { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.03em;
+             padding:4px 9px; border-radius:999px; white-space:nowrap;
+             border:1.5px solid transparent; color:#fff; }
+  .rb-pill.de { background:var(--olive); border-color:var(--olive-d); }
+  .rb-pill.ns { background:var(--ice);   border-color:var(--ice-d); }
+  .rb-pill.nc { background:var(--clay);  border-color:var(--clay-d); }
+  .rb-pill.zero { background:transparent; color:var(--g500); border-color:var(--g700); }
+  .rb-reply { flex:1; font-family:var(--mono); font-size:12px; color:var(--g300);
+              overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .rb-reply.live { color:var(--ivory); }
+  button.rb-copy { flex:none; font-family:var(--mono); font-size:12px; letter-spacing:.03em;
+                   background:var(--clay); color:#fff; border:1.5px solid var(--clay-d);
+                   border-radius:8px; padding:8px 16px; cursor:pointer;
+                   transition:background 120ms, opacity 120ms; }
+  button.rb-copy:hover:not(:disabled) { background:var(--clay-d); }
+  button.rb-copy:disabled { opacity:.35; cursor:default; }
+  button.rb-copy.copied { background:var(--olive); border-color:var(--olive); }
+  button.rb-clear { flex:none; font-family:var(--mono); font-size:11px; background:transparent;
+                    color:var(--g500); border:1.5px solid var(--g700); border-radius:8px;
+                    padding:8px 12px; cursor:pointer; transition:color 120ms, border-color 120ms; }
+  button.rb-clear:hover { color:var(--ivory); border-color:var(--g500); }
+  @media (max-width:860px){ .replybar-inner{ flex-wrap:wrap; gap:8px; padding:10px 16px; }
+                            .rb-reply{ order:3; flex-basis:100%; } }
+
+  footer { margin-top:46px; font-size:13px; color:var(--g500); }
+  footer code { font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div style="margin:26px 0 -18px; padding:14px 18px; border:1px solid #D97757;
+              border-left:3px solid #D97757; border-radius:10px; background:#FDF6F2;
+              font-size:14px; line-height:1.6; color:#3D3D3A; max-width:74ch;">
+    <b style="color:#B85C3E; font-family:ui-monospace,Menlo,Consolas,monospace;
+              font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+              display:block; margin-bottom:6px;">Revisão encerrada em 19/08/2026</b>
+    Esta página é o <b>registro da entrega de 18/08</b> e foi respondida por completo — os itens
+    R1–R7 e D1–D5 estão todos fechados. Os números aqui são os daquela data e
+    <b>não acompanham a pipeline</b>: hoje são 18 tabelas e 123 testes, e o teste de prevalência
+    entre escolas passou de qui-quadrado para <b>permutação</b> (item R4 abaixo).
+    Para o estado atual, ver <code>RESPOSTA_REVISAO.html</code> e
+    <code>src/outputs/banco_atual/relatorio.html</code>.
+  </div>
+
+  <header class="page-head">
+    <div class="eyebrow">tese brenda &middot; pipeline concluída &middot; 18/08/2026</div>
+    <h1>O que a pipeline entrega</h1>
+    <p class="lede">O notebook lê a planilha e produz 17 tabelas e 5 figuras, com 121 testes
+    garantindo que os números não mudem sem alguém perceber. Esta página mostra o que saiu e o que
+    ainda depende de você. Os itens <b>R1–R7</b> são resultados para conferir; os <b>D1–D5</b> são
+    decisões que eu não podia tomar sozinho.</p>
+
+    <div class="placar-topo">
+      <div class="kpi"><div class="n">365</div><div class="r">expostos</div></div>
+      <div class="kpi"><div class="n">49</div><div class="r">controle</div></div>
+      <div class="kpi destaque"><div class="n">13,4%</div><div class="r">com alteração</div></div>
+      <div class="kpi"><div class="n">121</div><div class="r">testes passando</div></div>
+    </div>
+
+    <div class="legend">
+      <div class="lg"><span class="lg-key de">Decidi</span>
+        <span class="lg-txt">Nas decisões D1–D5, cada botão é uma escolha concreta. O comentário vira a condição.</span></div>
+      <div class="lg"><span class="lg-key ns">Não sei ainda</span>
+        <span class="lg-txt">Abstenção explícita. <strong>Sai numa seção própria</strong> da resposta, separada do que você decidiu.</span></div>
+      <div class="lg"><span class="lg-key nc">Não confere</span>
+        <span class="lg-txt">Nos resultados R1–R7, marca número que não bate com o que você esperava.</span></div>
+    </div>
+
+    <p class="legend-nota">O botão <strong>“Não sei ainda”</strong> existe porque faltou no
+    companion anterior: treze respostas suas diziam “não sei informar”, e a página registrou como
+    “aprovado com ajuste”. Era defeito do controle, não da resposta. Agora abstenção tem lugar
+    próprio. <strong>Precedência:</strong> o botão manda; comentário sem botão vale como observação,
+    e aparece separado tanto do que você decidiu quanto do que você contestou.</p>
+  </header>
+
+  <div class="divider">R1–R3 &middot; Os números</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">433 lidos &middot; 414 elegíveis &middot; 19 excluídos</div>
+    <h2>Quem entrou na análise</h2>
+    <p class="art-sub">As exclusões saem derivadas da cor na planilha, não de lista no código. Se
+    vocês pintarem mais alguém, o notebook acompanha — e um teste avisa se a contagem mudar.</p>
+
+    <div class="mock">
+      <div class="mock-cap">R1 — composição da amostra</div>
+      <table class="placar">
+        <thead><tr><th>Grupo</th><th>Bruto</th><th>Excluídos</th><th>Final</th><th>Motivo da exclusão</th></tr></thead>
+        <tbody>
+          <tr><td>Exposto (6 escolas)</td><td>378</td><td>13</td><td>365</td><td style="text-align:right">12 sem questionário + ficha 224</td></tr>
+          <tr><td>Controle (UFBA)</td><td>55</td><td>6</td><td>49</td><td style="text-align:right">sem coleta de células</td></tr>
+          <tr class="soma"><td>Total</td><td>433</td><td>19</td><td>414</td><td style="text-align:right">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cards" style="margin-top:16px">
+      <div class="iv" id="ivR1">
+        <div class="iv-top"><span class="iv-num">R1</span><h3>365 expostos e 49 controle</h3>
+          <span class="chips"><span class="tagx ok">acima do mínimo de 353</span></span></div>
+        <p class="iv-body">O grupo exposto ficou <strong>acima da amostra mínima de 353</strong>
+        calculada na sua metodologia. Nenhum dos 18 excluídos por cor tinha marcador registrado, então
+        a exclusão não removeu desfecho de ninguém — só a ficha 224 tinha, e saiu por protocolo.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Conferência de R1">
+            <label class="tri sim"><input type="radio" name="tR1" value="Confere" data-n="R1" data-tipo="fato"><span>Confere</span></label>
+            <label class="tri nao"><input type="radio" name="tR1" value="Não confere" data-n="R1" data-tipo="fato"><span>Não confere</span></label>
+            <span class="estado" data-estado="R1"></span>
+          </div>
+          <textarea class="cmt" data-n="R1" data-rotulo="R1 (n final)" rows="1" aria-label="Comentário sobre R1" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivR2">
+        <div class="iv-top"><span class="iv-num">R2</span><h3>Prevalência por escola — o resultado principal</h3></div>
+        <div class="mock" style="margin-top:12px">
+          <div class="mock-cap">com intervalo de confiança de Wilson, 95%</div>
+          <table class="placar">
+            <thead><tr><th>Escola</th><th>n</th><th>casos</th><th>prevalência</th><th>IC 95%</th></tr></thead>
+            <tbody>
+              <tr class="fecha"><td>Stela Mutti</td><td>22</td><td>6</td><td>27,3%</td><td>13,2 – 48,2</td></tr>
+              <tr><td>Edvaldo M. Boaventura</td><td>47</td><td>9</td><td>19,1%</td><td>10,4 – 32,5</td></tr>
+              <tr><td>Elpídio Paranhos <span class="badge on">Cr alto</span></td><td>63</td><td>11</td><td>17,5%</td><td>10,0 – 28,6</td></tr>
+              <tr><td>Nazareth Falcão</td><td>61</td><td>9</td><td>14,8%</td><td>8,0 – 25,7</td></tr>
+              <tr><td>Francisco Pinto</td><td>82</td><td>11</td><td>13,4%</td><td>7,7 – 22,4</td></tr>
+              <tr class="fecha"><td>Círculo Operário</td><td>90</td><td>3</td><td>3,3%</td><td>1,1 – 9,3</td></tr>
+              <tr class="soma"><td>Exposto</td><td>365</td><td>49</td><td>13,4%</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="iv-why debate"><span class="tag">leia junto</span>
+          <span>O contraste de oito vezes entre Círculo Operário e Stela Mutti é real, mas os
+          <strong>intervalos se sobrepõem quase todos</strong> — só esses dois não se tocam. Com 22
+          crianças em Stela Mutti, a estimativa vai de 13% a 48%. A tese precisa citar o intervalo
+          junto do ponto.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Conferência de R2">
+            <label class="tri sim"><input type="radio" name="tR2" value="Confere" data-n="R2" data-tipo="fato"><span>Confere</span></label>
+            <label class="tri nao"><input type="radio" name="tR2" value="Não confere" data-n="R2" data-tipo="fato"><span>Não confere</span></label>
+            <span class="estado" data-estado="R2"></span>
+          </div>
+          <textarea class="cmt" data-n="R2" data-rotulo="R2 (prevalência por escola)" rows="1" aria-label="Comentário sobre R2" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivR3">
+        <div class="iv-top"><span class="iv-num">R3</span><h3>Caracterização da amostra: dois confundidores</h3>
+          <span class="chips"><span class="tagx info">n = 414</span></span></div>
+        <p class="iv-body">É o único lugar onde exposto × controle sobrevive, porque usa só o
+        questionário. Dois achados: <strong>idade difere</strong> (mediana 9 nos expostos contra 8 no
+        controle, <em>p</em> = 0,003) e <strong>posse de filtro de água difere</strong> (51% dos
+        expostos não têm, contra 30% do controle, <em>p</em> = 0,010). Sexo, cor da pele, consumo de
+        peixe e escolaridade dos pais não diferem.</p>
+        <div class="iv-why"><span class="tag">para a discussão</span>
+          <span>Os dois são confundidores plausíveis e devem aparecer na limitação, não como
+          resultado.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Conferência de R3">
+            <label class="tri sim"><input type="radio" name="tR3" value="Confere" data-n="R3" data-tipo="fato"><span>Confere</span></label>
+            <label class="tri nao"><input type="radio" name="tR3" value="Não confere" data-n="R3" data-tipo="fato"><span>Não confere</span></label>
+            <span class="estado" data-estado="R3"></span>
+          </div>
+          <textarea class="cmt" data-n="R3" data-rotulo="R3 (caracterização da amostra)" rows="1" aria-label="Comentário sobre R3" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">R4–R7 &middot; O que os testes disseram</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">30 testes em duas famílias, corrigidos separadamente</div>
+    <h2>Onde há sinal, e onde não há</h2>
+    <p class="art-sub">A correção de Benjamini-Hochberg foi aplicada por família — 6 testes entre
+    escolas e 24 entre covariáveis. Juntar as duas mudaria todos os valores ajustados sem que a
+    pergunta científica tivesse mudado.</p>
+
+    <div class="cards">
+      <div class="iv" id="ivR4">
+        <div class="iv-top"><span class="iv-num">R4</span><h3>Entre escolas: os seis testes sobrevivem</h3>
+          <span class="chips"><span class="tagx ok">todos significativos</span></span></div>
+        <div class="mock" style="margin-top:12px">
+          <table class="placar">
+            <thead><tr><th>Alvo</th><th>Teste</th><th><em>p</em></th><th><em>p</em> ajustado</th></tr></thead>
+            <tbody>
+              <tr><td>células normais</td><td style="text-align:right">Kruskal-Wallis</td><td>0,0166</td><td>0,0314</td></tr>
+              <tr><td>prevalência</td><td style="text-align:right">qui-quadrado*</td><td>0,0168</td><td>0,0314</td></tr>
+              <tr><td>cariólise</td><td style="text-align:right">Kruskal-Wallis</td><td>0,0172</td><td>0,0314</td></tr>
+              <tr><td>binucleadas</td><td style="text-align:right">Kruskal-Wallis</td><td>0,0209</td><td>0,0314</td></tr>
+              <tr><td>picnose</td><td style="text-align:right">Kruskal-Wallis</td><td>0,0348</td><td>0,0418</td></tr>
+              <tr><td>cariorrexe</td><td style="text-align:right">Kruskal-Wallis</td><td>0,0433</td><td>0,0433</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="iv-why debate"><span class="tag">* ressalva</span>
+          <span>O qui-quadrado da prevalência saiu com <strong>contagem esperada menor que 5</strong>
+          — Círculo Operário tem 3 casos em 90. O rótulo do teste carrega o aviso na própria tabela,
+          para que a tese não cite um qui-quadrado sem mencionar que o pressuposto está no
+          limite.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Conferência de R4">
+            <label class="tri sim"><input type="radio" name="tR4" value="Confere" data-n="R4" data-tipo="fato"><span>Confere</span></label>
+            <label class="tri nao"><input type="radio" name="tR4" value="Não confere" data-n="R4" data-tipo="fato"><span>Não confere</span></label>
+            <span class="estado" data-estado="R4"></span>
+          </div>
+          <textarea class="cmt" data-n="R4" data-rotulo="R4 (testes entre escolas)" rows="1" aria-label="Comentário sobre R4" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivR5">
+        <div class="iv-top"><span class="iv-num">R5</span><h3>Covariáveis individuais: nada, e nem perto</h3>
+          <span class="chips"><span class="tagx info">resultado nulo</span></span></div>
+        <p class="iv-body">Sexo, água da EMBASA em casa, filtro e consumo de peixe, cada um contra a
+        prevalência e contra cinco marcadores. <strong>O menor <em>p</em> bruto entre os 24 testes é
+        0,38</strong> — água da EMBASA contra binucleadas. Sexo dá 1,00.</p>
+        <div class="iv-why"><span class="tag">o que isso diz</span>
+          <span>A variação está <strong>entre escolas, não entre hábitos individuais</strong> das
+          crianças. Isso reforça a leitura ambiental do estudo, e é um resultado a relatar — não um
+          fracasso a esconder.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Conferência de R5">
+            <label class="tri sim"><input type="radio" name="tR5" value="Confere" data-n="R5" data-tipo="fato"><span>Confere</span></label>
+            <label class="tri nao"><input type="radio" name="tR5" value="Não confere" data-n="R5" data-tipo="fato"><span>Não confere</span></label>
+            <span class="estado" data-estado="R5"></span>
+          </div>
+          <textarea class="cmt" data-n="R5" data-rotulo="R5 (covariáveis individuais)" rows="1" aria-label="Comentário sobre R5" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivR6">
+        <div class="iv-top"><span class="iv-num">R6</span><h3>O cromo, e o contraponto que precisa acompanhá-lo</h3>
+          <span class="chips"><span class="tagx alt">2,18× o limite</span></span></div>
+        <p class="iv-body">Único elemento acima do valor máximo permitido em todo o estudo:
+        <strong>cromo em Elpídio Paranhos, 0,109 mg/L contra 0,05 mg/L</strong> da Portaria GM/MS
+        nº 888/2021. Dos 13 elementos medidos, 8 têm limite; o resto da água está abaixo do limite de
+        quantificação — que é ausência de medida, e no notebook não vira zero.</p>
+        <div class="iv-why debate"><span class="tag">obrigatório no texto</span>
+          <span>Elpídio Paranhos tem a <strong>terceira</strong> prevalência entre seis. A escola com
+          a maior (Stela Mutti, 27,3%) não tem elemento algum acima do limite. <strong>A água não
+          explica sozinha o gradiente</strong> — e dizer isso vale mais do que sugerir uma associação
+          que os dados não mostram.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Conferência de R6">
+            <label class="tri sim"><input type="radio" name="tR6" value="Confere" data-n="R6" data-tipo="fato"><span>Confere</span></label>
+            <label class="tri nao"><input type="radio" name="tR6" value="Não confere" data-n="R6" data-tipo="fato"><span>Não confere</span></label>
+            <span class="estado" data-estado="R6"></span>
+          </div>
+          <textarea class="cmt" data-n="R6" data-rotulo="R6 (cromo e contraponto)" rows="1" aria-label="Comentário sobre R6" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivR7">
+        <div class="iv-top"><span class="iv-num">R7</span><h3>Correlação e PCA nas 49 lâminas</h3></div>
+        <p class="iv-body">Dos 10 pares únicos, <strong>cinco sobrevivem à correção</strong>. O mais
+        forte é binucleadas × picnose: rho 0,68, intervalo bootstrap de 0,47 a 0,82. O clustering
+        separou <strong>morte celular</strong> (cariólise e células normais) de <strong>dano
+        nuclear</strong> (binucleadas, picnose, cariorrexe) — o que faz sentido biológico. No PCA, as
+        duas primeiras componentes somam 77%.</p>
+        <div class="iv-why debate"><span class="tag">ressalva</span>
+          <span>A quinta componente tem variância <strong>exatamente zero</strong>, porque as sete
+          frequências somam 1.000 por construção. Ver a decisão <strong>D3</strong>.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Conferência de R7">
+            <label class="tri sim"><input type="radio" name="tR7" value="Confere" data-n="R7" data-tipo="fato"><span>Confere</span></label>
+            <label class="tri nao"><input type="radio" name="tR7" value="Não confere" data-n="R7" data-tipo="fato"><span>Não confere</span></label>
+            <span class="estado" data-estado="R7"></span>
+          </div>
+          <textarea class="cmt" data-n="R7" data-rotulo="R7 (Spearman e PCA)" rows="1" aria-label="Comentário sobre R7" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">D1–D5 &middot; O que depende de você</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">cinco decisões que eu não podia tomar sozinho</div>
+    <h2>As decisões pendentes</h2>
+    <p class="art-sub">Todas mudam número da tese ou apagam arquivo. Nenhuma foi tomada pelo
+    notebook: ele sinaliza, exporta a lista e para por aí.</p>
+
+    <div class="cards">
+      <div class="iv" id="ivD1">
+        <div class="iv-top"><span class="iv-num">D1</span><h3>Oito participantes fora da faixa etária</h3>
+          <span class="chips"><span class="tagx alt">muda o n</span></span></div>
+        <p class="iv-body">A metodologia §4.1 declara faixa de <strong>6 a 14 anos</strong> como
+        critério de inclusão, e lista "estudantes fora da faixa etária" como critério de exclusão.
+        Oito violam isso: fichas <strong>211, 234, 436, 443 (15 anos), 438 (16 anos)</strong> no grupo
+        exposto, e <strong>708, 713 (5 anos), 722 (4 anos)</strong> no controle.</p>
+        <div class="iv-why debate"><span class="tag">se excluir</span>
+          <span>O exposto cai para 360 e o controle para 46. Continua acima do mínimo de 353. A lista
+          está em <code>idade_fora_da_faixa.csv</code>.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Decisão D1">
+            <label class="tri sim"><input type="radio" name="tD1" value="Excluir os 8" data-n="D1" data-tipo="decisao"><span>Excluir os 8</span></label>
+            <label class="tri nao"><input type="radio" name="tD1" value="Manter todos" data-n="D1" data-tipo="decisao"><span>Manter todos</span></label>
+            <label class="tri ns"><input type="radio" name="tD1" value="Não sei ainda" data-n="D1" data-tipo="decisao"><span>Não sei ainda</span></label>
+            <span class="estado" data-estado="D1"></span>
+          </div>
+          <textarea class="cmt" data-n="D1" data-rotulo="D1 (idade fora da faixa)" rows="1" aria-label="Comentário sobre D1" placeholder="Condição, ressalva ou o que falta para decidir…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD2">
+        <div class="iv-top"><span class="iv-num">D2</span><h3>Seis lâminas abaixo de 2.000 células</h3>
+          <span class="chips"><span class="tagx alt">muda o n</span></span></div>
+        <p class="iv-body">Você excluiu a ficha 224 por ter 423 células. Sobraram seis abaixo do
+        protocolo: <strong>520 (1.015)</strong>, 383 (1.508), 501 (1.732), 449 (1.905), 641 (1.923) e
+        443 (1.995). A ficha 520 tem <strong>metade</strong> do protocolo.</p>
+        <div class="iv-why debate"><span class="tag">a pergunta</span>
+          <span>Se o critério que excluiu a 224 for "muito abaixo de 2.000", ele alcança a 520
+          também. Onde fica a linha de corte? Há ainda 15 lâminas <em>acima</em> de 2.000, o que é
+          esperado quando uma célula carrega duas anomalias e entra em duas categorias. Lista completa
+          em <code>laminas_fora_de_2000.csv</code>.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Decisão D2">
+            <label class="tri sim"><input type="radio" name="tD2" value="Excluir também a 520" data-n="D2" data-tipo="decisao"><span>Excluir também a 520</span></label>
+            <label class="tri nao"><input type="radio" name="tD2" value="Manter as seis" data-n="D2" data-tipo="decisao"><span>Manter as seis</span></label>
+            <label class="tri ns"><input type="radio" name="tD2" value="Não sei ainda" data-n="D2" data-tipo="decisao"><span>Não sei ainda</span></label>
+            <span class="estado" data-estado="D2"></span>
+          </div>
+          <textarea class="cmt" data-n="D2" data-rotulo="D2 (lâminas curtas)" rows="1" aria-label="Comentário sobre D2" placeholder="Qual corte usar…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD3">
+        <div class="iv-top"><span class="iv-num">D3</span><h3>Dados composicionais</h3>
+          <span class="chips"><span class="tagx alt">muda o método</span></span></div>
+        <p class="iv-body">As sete frequências <strong>somam 1.000 por construção</strong> — são
+        frações das mesmas 2.000 células. Duas consequências: correlações negativas são em parte
+        induzidas pela restrição (se a cariólise sobe, algo precisa descer), e uma componente do PCA
+        tem variância zero.</p>
+        <div class="iv-why debate"><span class="tag">o dilema</span>
+          <span>Corrigir exige transformação log-razão (CLR/ILR), o que <strong>divergiria do artigo
+          de referência</strong> — Cury et al. reportaram contagem absoluta e aplicaram Spearman e PCA
+          do mesmo jeito. Manter é consistente com o precedente, desde que a ressalva esteja no
+          texto.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Decisão D3">
+            <label class="tri sim"><input type="radio" name="tD3" value="Manter e declarar a ressalva" data-n="D3" data-tipo="decisao"><span>Manter e declarar</span></label>
+            <label class="tri nao"><input type="radio" name="tD3" value="Aplicar log-razão" data-n="D3" data-tipo="decisao"><span>Aplicar log-razão</span></label>
+            <label class="tri ns"><input type="radio" name="tD3" value="Não sei ainda" data-n="D3" data-tipo="decisao"><span>Não sei ainda</span></label>
+            <span class="estado" data-estado="D3"></span>
+          </div>
+          <textarea class="cmt" data-n="D3" data-rotulo="D3 (dados composicionais)" rows="1" aria-label="Comentário sobre D3" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD4">
+        <div class="iv-top"><span class="iv-num">D4</span><h3>A coincidência com Cury et al.</h3>
+          <span class="chips"><span class="tagx info">sem explicação</span></span></div>
+        <p class="iv-body">As 49 lâminas com alteração coincidem, marcador a marcador, com a Tabela I
+        do artigo publicado, que reporta n = 49. Testei a hipótese de que o artigo teria excluído a
+        ficha 224: <strong>refutada</strong>. Remover a 224 afasta os números do artigo, e o próprio
+        texto declara o n = 49 como <strong>amostra de conveniência</strong>, não como exclusão.</p>
+        <div class="iv-why debate"><span class="tag">o risco</span>
+          <span>Se um membro da banca refizer essa comparação, precisa encontrar a explicação já
+          escrita. Hoje ela está registrada como limitação — mas continua sem explicação
+          documentada.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Decisão D4">
+            <label class="tri sim"><input type="radio" name="tD4" value="Investigar antes de escrever" data-n="D4" data-tipo="decisao"><span>Investigar antes</span></label>
+            <label class="tri nao"><input type="radio" name="tD4" value="Declarar como limitação" data-n="D4" data-tipo="decisao"><span>Declarar como limitação</span></label>
+            <label class="tri ns"><input type="radio" name="tD4" value="Não sei ainda" data-n="D4" data-tipo="decisao"><span>Não sei ainda</span></label>
+            <span class="estado" data-estado="D4"></span>
+          </div>
+          <textarea class="cmt" data-n="D4" data-rotulo="D4 (coincidência com Cury)" rows="1" aria-label="Comentário sobre D4" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivD5">
+        <div class="iv-top"><span class="iv-num">D5</span><h3>Seis arquivos da pipeline antiga</h3>
+          <span class="chips"><span class="tagx info">risco de confusão</span></span></div>
+        <p class="iv-body">Continuam em <code>outputs/banco_atual/</code> seis artefatos de junho, com
+        o vocabulário que saiu do escopo: <code>dataset_analitico.csv</code>,
+        <code>mann_whitney.csv</code>, <code>mann_whitney_stub.csv</code>,
+        <code>descritiva_epts.csv</code>, <code>descritiva_epts_por_bairro_moradia.csv</code> e
+        <code>spearman_p_matriz.csv</code>. Nenhum tem coluna de identificação, mas todos têm números
+        obsoletos.</p>
+        <div class="iv-why debate"><span class="tag">por que não apaguei</span>
+          <span>Apagar arquivo de dado por conta própria seria surpresa. O notebook lista os órfãos ao
+          final de cada execução, para que ninguém monte uma tabela da tese com número de
+          junho.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Decisão D5">
+            <label class="tri sim"><input type="radio" name="tD5" value="Apagar os seis" data-n="D5" data-tipo="decisao"><span>Apagar os seis</span></label>
+            <label class="tri nao"><input type="radio" name="tD5" value="Manter por ora" data-n="D5" data-tipo="decisao"><span>Manter por ora</span></label>
+            <label class="tri ns"><input type="radio" name="tD5" value="Não sei ainda" data-n="D5" data-tipo="decisao"><span>Não sei ainda</span></label>
+            <span class="estado" data-estado="D5"></span>
+          </div>
+          <textarea class="cmt" data-n="D5" data-rotulo="D5 (artefatos antigos)" rows="1" aria-label="Comentário sobre D5" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">O que sai em arquivo</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">17 tabelas &middot; 5 figuras &middot; outputs/banco_atual/</div>
+    <h2>O inventário</h2>
+    <p class="art-sub">Nenhum arquivo contém coluna de identificação. Um teste abre cada CSV e procura
+    nomes reais de crianças dentro — não só no cabeçalho.</p>
+
+    <div class="lista-arq">
+      <span>desfecho_participante.csv <em>414 linhas</em></span>
+      <span>exposicao_escola.csv <em>7 pontos</em></span>
+      <span>prevalencia_por_escola.csv <em>6 escolas</em></span>
+      <span>descritiva_marcadores.csv <em>7 marcadores</em></span>
+      <span>caracterizacao_amostra.csv <em>8 variáveis</em></span>
+      <span>testes_escolas.csv <em>6 testes</em></span>
+      <span>testes_covariaveis.csv <em>24 testes</em></span>
+      <span>spearman_pares.csv <em>10 pares</em></span>
+      <span>spearman_top_pares_bootstrap.csv <em>com IC</em></span>
+      <span>spearman_rho_matriz.csv <em>5 × 5</em></span>
+      <span>correlacao_ecologica.csv <em>n = 6</em></span>
+      <span>pca_loadings.csv <em>5 componentes</em></span>
+      <span>pca_variancia.csv <em>acumulada</em></span>
+      <span>razao_vmp_agua.csv <em>8 elementos</em></span>
+      <span>laminas_fora_de_2000.csv <em>conferência</em></span>
+      <span>idade_fora_da_faixa.csv <em>conferência</em></span>
+      <span>relatorio_coercao.csv <em>conferência</em></span>
+      <span>prevalencia_por_escola.png <em>figura</em></span>
+      <span>heatmap_spearman.png <em>figura</em></span>
+      <span>scree_pca.png <em>figura</em></span>
+      <span>biplot_pca.png <em>figura</em></span>
+      <span>heatmap_razao_vmp.png <em>figura</em></span>
+    </div>
+  </div>
+
+  <div class="divider">As dez notas para a tese</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">Bloco 14 &middot; matéria-prima do capítulo de Métodos</div>
+    <h2>O que já está escrito</h2>
+    <p class="art-sub">Uma frase por decisão metodológica, em linguagem de texto acadêmico. Existem
+    para que nenhuma escolha desta análise chegue à banca sem estar declarada. Um teste verifica que
+    cada assunto sensível continua presente.</p>
+    <div class="notas">
+      <div class="nota">Ausência de desfecho no controle, e o que isso impede.</div>
+      <div class="nota">A premissa do branco: contagem completa que deu zero, informada pela equipe.</div>
+      <div class="nota">As exclusões: 12 sem questionário, 6 sem células, 1 por células insuficientes.</div>
+      <div class="nota">A coincidência com Cury et al. e o n de conveniência declarado no artigo.</div>
+      <div class="nota">A divergência de normalização: frequência por 1.000 contra contagem absoluta.</div>
+      <div class="nota">Os dados composicionais e o que eles fazem com correlação e PCA.</div>
+      <div class="nota">Micronúcleo e brotamento sem poder: ~5 e ~8 eventos em 730.000 células.</div>
+      <div class="nota">A correção por família, e por que não sobre o monte todo.</div>
+      <div class="nota">O cromo, com o contraponto de que a água não explica o gradiente sozinha.</div>
+      <div class="nota">Os oito participantes fora da faixa etária, sinalizados e não excluídos.</div>
+    </div>
+  </div>
+
+  <footer>
+    Companion do estado da pipeline em 18/08/2026. Números conferidos contra
+    <code>outputs/banco_atual/</code> e a suíte de 121 testes. Marcações salvas neste navegador
+    (<code>localStorage</code>, chave <code>tese_brenda_entrega_v1</code>).
+  </footer>
+</div>
+
+<div class="replybar">
+  <div class="replybar-inner">
+    <div class="rb-counts">
+      <span class="rb-pill de zero" id="rbDe">0 decididas</span>
+      <span class="rb-pill ns zero" id="rbNs">0 não sei</span>
+      <span class="rb-pill nc zero" id="rbNc">0 não confere</span>
+    </div>
+    <div class="rb-reply" id="rbReply">Nada marcado — sua resposta é montada aqui.</div>
+    <button class="rb-clear" id="rbClear" type="button">limpar</button>
+    <button class="rb-copy" id="rbCopy" type="button" disabled>copiar resposta</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Chave versionada: se os itens mudarem, suba a versao em vez de restaurar
+  // marcacao antiga em cima de item que nao existe mais.
+  var KEY = 'tese_brenda_entrega_v1';
+
+  var radios = Array.prototype.slice.call(document.querySelectorAll('.tri input[type="radio"]'));
+  var caixas = Array.prototype.slice.call(document.querySelectorAll('textarea.cmt'));
+
+  // Dois tipos de item: "fato" (R1..R7, Confere/Nao confere) e "decisao"
+  // (D1..D5, duas opcoes concretas mais "Nao sei ainda").
+  var porItem = {};
+  function slot(n) {
+    if (!porItem[n]) porItem[n] = { radios: [], ta: null, rotulo: n, tipo: 'fato' };
+    return porItem[n];
+  }
+  radios.forEach(function (r) {
+    var s = slot(r.getAttribute('data-n'));
+    s.radios.push(r);
+    s.tipo = r.getAttribute('data-tipo') || 'fato';
+  });
+  caixas.forEach(function (t) {
+    var s = slot(t.getAttribute('data-n'));
+    s.ta = t;
+    var rot = t.getAttribute('data-rotulo');
+    if (rot) s.rotulo = rot;
+  });
+
+  var itens = caixas.map(function (t) { return t.getAttribute('data-n'); });
+  var decisoes = itens.filter(function (n) { return porItem[n].tipo === 'decisao'; });
+  var fatos = itens.filter(function (n) { return porItem[n].tipo === 'fato'; });
+
+  var ultimo = {};
+  var rbDe = document.getElementById('rbDe');
+  var rbNs = document.getElementById('rbNs');
+  var rbNc = document.getElementById('rbNc');
+  var rbReply = document.getElementById('rbReply');
+  var rbCopy = document.getElementById('rbCopy');
+  var rbClear = document.getElementById('rbClear');
+  var respostaAtual = '';
+
+  function textoDe(n) { var ta = porItem[n].ta; return ta ? ta.value.trim() : ''; }
+
+  function marcadoEm(n) {
+    var v = null;
+    porItem[n].radios.forEach(function (r) { if (r.checked) v = r.value; });
+    return v;
+  }
+
+  // Estado derivado. O botao manda; comentario sem botao vale como observacao.
+  // "Nao sei ainda" tem estado proprio para nao se confundir com decisao.
+  function estadoDe(n) {
+    var marcado = marcadoEm(n);
+    var cmt = textoDe(n);
+    if (marcado === 'Não sei ainda') return 'naosei';
+    if (marcado === 'Não confere') return 'naoconfere';
+    if (marcado === 'Confere') return 'confere';
+    if (marcado) return 'decidido';
+    return cmt ? 'observacao' : null;
+  }
+
+  var LEGIVEL = {
+    confere: 'Confere', naoconfere: 'Não confere', decidido: 'Decidido',
+    naosei: 'Não sei ainda', observacao: 'Comentado'
+  };
+
+  function crescer(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = (ta.scrollHeight + 2) + 'px';
+  }
+
+  function pintar(n, estado) {
+    var alvo = document.getElementById('iv' + n);
+    if (alvo) {
+      alvo.classList.remove('st-confere', 'st-naoconfere', 'st-decidido',
+                            'st-naosei', 'st-observacao');
+      if (estado) alvo.classList.add('st-' + estado);
+    }
+    var etiqueta = document.querySelector('[data-estado="' + n + '"]');
+    if (etiqueta) {
+      etiqueta.className = 'estado' + (estado ? ' s-' + estado : '');
+      etiqueta.textContent = estado ? LEGIVEL[estado] : '';
+    }
+    var ta = porItem[n].ta;
+    if (ta) ta.classList.toggle('preenchida', textoDe(n).length > 0);
+  }
+
+  function contaPill(el, num, rotulo) {
+    el.textContent = num + ' ' + rotulo;
+    el.classList.toggle('zero', num === 0);
+  }
+
+  function salvar() {
+    var estado = {};
+    itens.forEach(function (n) {
+      var marcado = marcadoEm(n);
+      var ta = porItem[n].ta;
+      var bruto = ta ? ta.value : '';
+      if (marcado || bruto.trim()) estado[n] = { s: marcado, c: bruto };
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(estado)); } catch (e) {}
+  }
+
+  function restaurar() {
+    var bruto = null;
+    try { bruto = localStorage.getItem(KEY); } catch (e) { return; }
+    if (!bruto) return;
+    var estado;
+    try { estado = JSON.parse(bruto); } catch (e) { return; }
+    if (!estado || typeof estado !== 'object') return;
+    itens.forEach(function (n) {
+      var g = estado[n];
+      if (!g) return;
+      porItem[n].radios.forEach(function (r) {
+        if (g.s === r.value) { r.checked = true; ultimo[r.getAttribute('name')] = r.value; }
+      });
+      if (porItem[n].ta && typeof g.c === 'string') porItem[n].ta.value = g.c;
+    });
+  }
+
+  function achatar(txt) { return txt.replace(/\s+/g, ' ').trim(); }
+
+  function update() {
+    var decididas = [], naoSei = [], naoConfere = [], confere = [], observacoes = [];
+
+    itens.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      if (!e) return;
+      var item = { n: n, rotulo: porItem[n].rotulo, escolha: marcadoEm(n), c: achatar(textoDe(n)) };
+      if (e === 'decidido') decididas.push(item);
+      else if (e === 'naosei') naoSei.push(item);
+      else if (e === 'naoconfere') naoConfere.push(item);
+      else if (e === 'confere') confere.push(item);
+      else observacoes.push(item);
+    });
+
+    contaPill(rbDe, decididas.length, 'decididas');
+    contaPill(rbNs, naoSei.length, 'não sei');
+    contaPill(rbNc, naoConfere.length, 'não confere');
+
+    var total = decididas.length + naoSei.length + naoConfere.length
+              + confere.length + observacoes.length;
+
+    if (total === 0) {
+      respostaAtual = '';
+      rbReply.textContent = 'Nada marcado — sua resposta é montada aqui.';
+      rbReply.classList.remove('live');
+      rbCopy.disabled = true;
+      salvar();
+      return;
+    }
+
+    var linhas = ['Companion "O que a pipeline entrega"',
+                  '(planning/html/ENTREGA_PIPELINE.html):'];
+
+    // Decisoes primeiro: sao o que destrava o proximo passo.
+    if (decididas.length) {
+      linhas.push('', 'DECISOES:');
+      decididas.forEach(function (m) {
+        linhas.push('- ' + m.rotulo + ': ' + m.escolha + (m.c ? ' — ' + m.c : ''));
+      });
+    }
+    // Abstencao tem secao propria: "nao sei" nao e "nao quero".
+    if (naoSei.length) {
+      linhas.push('', 'AINDA SEM DECISAO:');
+      naoSei.forEach(function (m) {
+        linhas.push('- ' + m.rotulo + (m.c ? ' — falta: ' + m.c : ''));
+      });
+    }
+    if (naoConfere.length) {
+      linhas.push('', 'NAO CONFERE:');
+      naoConfere.forEach(function (m) {
+        linhas.push('- ' + m.rotulo + (m.c ? ' — ' + m.c : ' — (sem detalhe escrito)'));
+      });
+    }
+    if (observacoes.length) {
+      linhas.push('', 'OBSERVACOES:');
+      observacoes.forEach(function (m) { linhas.push('- ' + m.rotulo + ': ' + m.c); });
+    }
+    if (confere.length) {
+      linhas.push('', 'CONFERE: ' + confere.map(function (m) { return m.n; }).join(', '));
+    }
+
+    // Separa "nao decidi" de "nao cheguei la".
+    var decididasOuAbstidas = decididas.length + naoSei.length
+        + decisoes.filter(function (n) { return estadoDe(n) === 'observacao'; }).length;
+    var faltamDecisoes = decisoes.length - decididasOuAbstidas;
+    if (faltamDecisoes > 0) {
+      linhas.push('', '(' + faltamDecisoes + ' de ' + decisoes.length + ' decisoes sem marcar)');
+    }
+    var faltamFatos = fatos.length - fatos.filter(function (n) { return estadoDe(n); }).length;
+    if (faltamFatos > 0) {
+      linhas.push('(' + faltamFatos + ' de ' + fatos.length + ' resultados sem conferir)');
+    }
+
+    respostaAtual = linhas.join('\n');
+
+    var previa = [];
+    if (decididas.length) previa.push(decididas.length + ' decidida(s)');
+    if (naoSei.length) previa.push(naoSei.length + ' sem decisão');
+    if (naoConfere.length) previa.push('Não confere ' + naoConfere.map(function (m) { return m.n; }).join(', '));
+    if (confere.length) previa.push(confere.length + ' conferido(s)');
+    if (observacoes.length) previa.push(observacoes.length + ' observação(ões)');
+    rbReply.textContent = previa.join('  ·  ');
+    rbReply.classList.add('live');
+    rbCopy.disabled = false;
+    salvar();
+  }
+
+  radios.forEach(function (r) {
+    r.addEventListener('click', function () {
+      var grupo = r.getAttribute('name');
+      if (ultimo[grupo] === r.value) { r.checked = false; ultimo[grupo] = null; }
+      else { ultimo[grupo] = r.value; }
+      update();
+    });
+  });
+
+  caixas.forEach(function (ta) {
+    ta.addEventListener('input', function () { crescer(ta); update(); });
+  });
+
+  rbClear.addEventListener('click', function () {
+    radios.forEach(function (r) { r.checked = false; });
+    caixas.forEach(function (ta) { ta.value = ''; crescer(ta); });
+    ultimo = {};
+    update();
+  });
+
+  // Copia com fallback para file://, onde navigator.clipboard costuma ser bloqueada.
+  function copiar(texto, btn, rotulo, rotuloOk) {
+    function pronto() {
+      btn.classList.add('copied');
+      btn.textContent = rotuloOk;
+      setTimeout(function () { btn.classList.remove('copied'); btn.textContent = rotulo; }, 1600);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      pronto();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(pronto, fallback);
+    } else { fallback(); }
+  }
+
+  rbCopy.addEventListener('click', function () {
+    if (respostaAtual) copiar(respostaAtual, rbCopy, 'copiar resposta', 'copiado');
+  });
+
+  restaurar();
+  caixas.forEach(crescer);
+  update();
+})();
+</script>
+</body>
+</html>

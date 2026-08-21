@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparativo com Cury et al. — a semântica do branco</title>
+<style>
+  :root {
+    --ivory:  #FAF9F5;
+    --paper:  #FFFFFF;
+    --slate:  #141413;
+    --clay:   #D97757;
+    --clay-d: #B85C3E;
+    --clay-bg:#FDF6F2;
+    --oat:    #E3DACC;
+    --olive:  #788C5D;
+    --olive-d:#5E7047;
+    --olive-bg:#F1F5EA;
+    --ice:    #5F7A8A;
+    --ice-d:  #4A626F;
+    --ice-bg: #EDF2F5;
+    --g100:   #F0EEE6;
+    --g200:   #E6E3DA;
+    --g300:   #D1CFC5;
+    --g500:   #87867F;
+    --g700:   #3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--ivory); color: var(--slate);
+    font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px 180px; }
+
+  header.page-head { padding: 56px 0 8px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--g500); margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow::before { content: ""; width: 24px; height: 1.5px; background: var(--clay); flex: none; }
+  h1 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(32px, 4.6vw, 46px); line-height: 1.08;
+    letter-spacing: -0.018em; margin: 0 0 10px;
+  }
+  .lede { font-size: 16px; color: var(--g700); max-width: 680px; margin: 0 0 22px; }
+  .fonte {
+    font-family: var(--mono); font-size: 12px; color: var(--g500);
+    border-left: 3px solid var(--oat); padding-left: 12px; margin: 0 0 26px;
+  }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+  .lg {
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1.5px solid var(--g300); border-radius: 10px;
+    background: var(--paper); padding: 11px 14px; flex: 1 1 250px; min-width: 0;
+  }
+  .lg-key {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: 999px; padding: 3px 10px; flex: none; color: #fff;
+    margin-top: 1px; white-space: nowrap;
+  }
+  .lg-key.ok { background: var(--olive); }
+  .lg-key.no { background: var(--clay); }
+  .lg-key.rs { background: var(--ice); }
+  .lg-txt { font-size: 12.5px; color: var(--g700); line-height: 1.4; }
+  .legend-nota {
+    font-size: 13px; color: var(--g700); margin: 0 0 34px;
+    padding-left: 14px; border-left: 3px solid var(--oat); max-width: 68ch;
+  }
+
+  h2 {
+    font-family: var(--serif); font-weight: 500; font-size: 25px;
+    letter-spacing: -0.01em; margin: 46px 0 6px;
+    padding-bottom: 9px; border-bottom: 1.5px solid var(--g200);
+  }
+  .h2-sub { font-size: 13.5px; color: var(--g500); margin: 0 0 20px; max-width: 68ch; }
+
+  /* ---------------------------------------------------- bloco da decisao -- */
+  .decisao {
+    background: var(--paper); border: 2px solid var(--clay);
+    border-radius: 14px; padding: 24px 26px; margin: 8px 0 10px;
+  }
+  .decisao.d-zero     { border-color: var(--olive); background: var(--olive-bg); }
+  .decisao.d-naolido  { border-color: var(--clay);  background: var(--clay-bg); }
+  .decisao.d-verificar{ border-color: var(--ice);   background: var(--ice-bg); }
+  .decisao-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--clay); margin-bottom: 12px;
+  }
+  .decisao h3 { font-family: var(--serif); font-weight: 500; font-size: 21px; margin: 0 0 12px; }
+  .decisao p { font-size: 14.5px; color: var(--g700); margin: 0 0 14px; max-width: 70ch; }
+  .opcoes { display: flex; flex-direction: column; gap: 10px; margin: 18px 0 4px; }
+  .opt {
+    display: flex; gap: 12px; align-items: flex-start; cursor: pointer;
+    border: 1.5px solid var(--g300); border-radius: 11px;
+    background: var(--paper); padding: 13px 15px; transition: border-color 120ms, background 120ms;
+  }
+  .opt:hover { border-color: var(--g500); }
+  .opt input { margin: 3px 0 0; flex: none; accent-color: var(--slate); }
+  .opt-t { font-weight: 600; font-size: 14.5px; display: block; margin-bottom: 3px; }
+  .opt-d { font-size: 13px; color: var(--g700); line-height: 1.45; }
+  .opt.sel-zero      { border-color: var(--olive); background: var(--olive-bg); }
+  .opt.sel-naolido   { border-color: var(--clay);  background: var(--clay-bg); }
+  .opt.sel-verificar { border-color: var(--ice);   background: var(--ice-bg); }
+
+  /* ---------------------------------------------------------- comparativo -- */
+  .tabela-caixa { overflow-x: auto; margin: 8px 0 10px; border-radius: 12px; border: 1.5px solid var(--g300); }
+  table.comp { border-collapse: collapse; width: 100%; background: var(--paper); font-size: 13.5px; min-width: 640px; }
+  table.comp th, table.comp td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--g200); }
+  table.comp thead th {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--g500); background: var(--g100);
+    border-bottom: 1.5px solid var(--g300); font-weight: 700; vertical-align: bottom;
+  }
+  table.comp td.num { font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
+  table.comp tbody tr:last-child td { border-bottom: none; }
+  table.comp tbody tr.destaque td { background: var(--clay-bg); font-weight: 600; }
+  .tab-nota { font-size: 12.5px; color: var(--g500); margin: 0 0 26px; max-width: 70ch; }
+
+  /* ---------------------------------------------------------------- itens -- */
+  .grupo { display: flex; flex-direction: column; gap: 14px; }
+  .iv {
+    background: var(--paper); border: 1.5px solid var(--g300);
+    border-radius: 13px; padding: 18px 20px; transition: border-color 140ms, background 140ms;
+  }
+  .iv.st-ok      { border-color: var(--olive); background: var(--olive-bg); }
+  .iv.st-ressalva{ border-color: var(--ice);   background: var(--ice-bg); }
+  .iv.st-no      { border-color: var(--clay);  background: var(--clay-bg); }
+  .iv-top { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+  .iv-num {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--clay-d); background: var(--clay-bg);
+    border: 1px solid var(--oat); border-radius: 6px; padding: 2px 8px; flex: none;
+  }
+  .iv h3 { font-family: var(--serif); font-weight: 500; font-size: 18px; margin: 0; }
+  .iv-body { font-size: 14px; color: var(--g700); margin: 0 0 12px; max-width: 72ch; }
+  .iv-body code, .iv-body strong { font-weight: 600; }
+  code { font-family: var(--mono); font-size: 0.9em; background: var(--g100); padding: 1px 5px; border-radius: 4px; }
+  .tagx {
+    font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; border-radius: 999px; padding: 3px 9px; color: #fff; background: var(--g500);
+  }
+  .tagx.novo { background: var(--clay); }
+  .tagx.spec { background: var(--ice); }
+
+  .iv-foot { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+  .triage { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .tri { cursor: pointer; }
+  .tri input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .tri span {
+    display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    border: 1.5px solid var(--g300); border-radius: 999px; padding: 5px 13px;
+    color: var(--g700); background: var(--paper); transition: all 120ms;
+  }
+  .tri:hover span { border-color: var(--g500); }
+  .tri.ok input:checked + span { background: var(--olive); border-color: var(--olive); color: #fff; }
+  .tri.no input:checked + span { background: var(--clay); border-color: var(--clay); color: #fff; }
+  .estado { font-family: var(--mono); font-size: 11px; color: var(--g500); }
+  .estado.s-ok { color: var(--olive-d); }
+  .estado.s-ressalva { color: var(--ice-d); }
+  .estado.s-no { color: var(--clay-d); }
+  textarea.cmt {
+    flex: 1 1 260px; min-width: 200px; font-family: var(--sans); font-size: 13.5px;
+    color: var(--slate); background: var(--paper); border: 1.5px solid var(--g300);
+    border-radius: 9px; padding: 8px 11px; resize: none; overflow: hidden; line-height: 1.45;
+  }
+  textarea.cmt:focus { outline: none; border-color: var(--ice); }
+  textarea.cmt.preenchida { border-color: var(--ice); background: var(--ice-bg); }
+
+  /* --------------------------------------------------------- barra fixa --- */
+  .rb {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    background: var(--paper); border-top: 1.5px solid var(--g300);
+    padding: 12px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    box-shadow: 0 -6px 22px rgba(20,20,19,0.07);
+  }
+  .rb-inner { max-width: 980px; margin: 0 auto; width: 100%; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .rb-pill {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase; border-radius: 999px; padding: 4px 11px; color: #fff; flex: none;
+  }
+  .rb-pill.dc { background: var(--slate); }
+  .rb-pill.ok { background: var(--olive); }
+  .rb-pill.rs { background: var(--ice); }
+  .rb-pill.no { background: var(--clay); }
+  .rb-pill.zero { background: var(--g300); color: var(--g700); }
+  .rb-reply {
+    flex: 1 1 240px; font-family: var(--mono); font-size: 12px; color: var(--g500);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+  }
+  .rb-reply.live { color: var(--slate); }
+  .rb-clear, .rb-copy {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase; border-radius: 9px; padding: 9px 16px; cursor: pointer;
+    border: 1.5px solid var(--g300); background: var(--paper); color: var(--g700); flex: none;
+  }
+  .rb-copy { background: var(--slate); border-color: var(--slate); color: var(--ivory); }
+  .rb-copy:disabled { background: var(--g200); border-color: var(--g200); color: var(--g500); cursor: not-allowed; }
+  .rb-copy.copied { background: var(--olive); border-color: var(--olive); }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px 210px; }
+    .iv-foot { flex-direction: column; align-items: stretch; }
+    textarea.cmt { flex: 1 1 auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <div class="eyebrow">Companion · 18 ago 2026</div>
+    <h1>Comparativo com Cury&nbsp;et&nbsp;al.</h1>
+    <p class="lede">Comparei as 50 lâminas preenchidas na planilha com a Tabela&nbsp;I do artigo de
+    referência. O resultado reabre uma decisão que você já tinha fechado na revisão do spec — e é
+    uma decisão que muda o tamanho da amostra do desfecho, de 366 para 50. Preciso da sua leitura
+    antes de escrever qualquer linha de notebook.</p>
+    <p class="fonte">fontes: referencias/artigo_micronucleo_patricia.pdf (Tabela I) ·
+    planilha_banco_de_dados.xlsx, aba SEM SALIVA ·
+    docs/superpowers/specs/2026-08-17-analise-citogenetica-design.md §2.1, §2.2, §3.1, §8</p>
+
+    <div class="legend">
+      <div class="lg"><span class="lg-key ok">confere</span><span class="lg-txt">O argumento se
+      sustenta; pode entrar no spec como está.</span></div>
+      <div class="lg"><span class="lg-key no">não confere</span><span class="lg-txt">O argumento
+      está errado ou você tem informação que o derruba.</span></div>
+      <div class="lg"><span class="lg-key rs">ressalva</span><span class="lg-txt">Estado derivado:
+      basta escrever no campo. Não precisa clicar em nada.</span></div>
+    </div>
+    <p class="legend-nota"><strong>Precedência:</strong> <em>não confere</em> vence sempre, mesmo
+    com texto escrito. Texto sem botão vira <em>ressalva</em>. <em>Confere</em> com texto vira
+    <em>confere com ressalva</em> — o texto sempre viaja junto na resposta. A decisão do §2.1 é
+    separada: lá a escolha é obrigatória e o texto é complemento, nunca substituto.</p>
+  </header>
+
+  <h2>A decisão</h2>
+  <p class="h2-sub">Este é o único item que não posso deduzir sozinho, e do qual todo o resto
+  depende.</p>
+
+  <div class="decisao" id="dec">
+    <div class="decisao-label">spec §2.1 — reaberto</div>
+    <h3>O que significa a célula em branco nas colunas de marcador?</h3>
+    <p>Na revisão você confirmou: as 316 crianças tiveram 2.000 células contadas e nenhuma
+    alteração. O comparativo abaixo aponta na direção oposta. Você tem informação de bancada que eu
+    não tenho — se mantiver a leitura, eu sigo com ela e registro a divergência no Bloco&nbsp;14.</p>
+
+    <div class="opcoes" role="radiogroup" aria-label="Decisão sobre a semântica do branco">
+      <label class="opt" data-opt="zero">
+        <input type="radio" name="decisao" value="zero">
+        <span>
+          <span class="opt-t">Branco é zero medido — mantenho o que revisei</span>
+          <span class="opt-d">As 316 foram lidas e não tinham alteração. O desfecho existe para os
+          366, a prevalência por escola (§3.1) se sustenta, e a discrepância com o artigo entra na
+          tese como achado a explicar.</span>
+        </span>
+      </label>
+      <label class="opt" data-opt="naolido">
+        <input type="radio" name="decisao" value="naolido">
+        <span>
+          <span class="opt-t">Branco é lâmina não tabulada — o desfecho é de 50</span>
+          <span class="opt-d">As 50 preenchidas são a coorte já publicada. O desfecho cai para
+          n&nbsp;=&nbsp;50, a prevalência por escola sai do escopo, e a tese passa a se apoiar na
+          camada ecológica e na caracterização da amostra.</span>
+        </span>
+      </label>
+      <label class="opt" data-opt="verificar">
+        <input type="radio" name="decisao" value="verificar">
+        <span>
+          <span class="opt-t">Vou confirmar com o laboratório antes de decidir</span>
+          <span class="opt-d">Eu paro aqui e não implemento nenhuma das duas leituras. A pergunta
+          para a Unifesp: existe planilha de contagem das 316, ou só das 50?</span>
+        </span>
+      </label>
+    </div>
+    <div class="iv-foot">
+      <textarea class="cmt" data-n="2.1" data-rotulo="2.1 (semântica do branco)" rows="1"
+        aria-label="Comentário sobre a decisão 2.1" placeholder="Contexto, se quiser registrar…"></textarea>
+    </div>
+  </div>
+
+  <h2>O comparativo</h2>
+  <p class="h2-sub">Contagem por 2.000 células pontuadas, média ± desvio-padrão. A coluna do artigo
+  é transcrição literal da Tabela&nbsp;I; a da planilha foi calculada sobre as 50 lâminas com
+  marcador registrado.</p>
+
+  <div class="tabela-caixa">
+    <table class="comp">
+      <thead>
+        <tr>
+          <th>Marcador</th>
+          <th>Planilha, exposto<br>(n = 50)</th>
+          <th>Cury et al., exposto<br>(n = 49)</th>
+          <th>Cury et al., controle<br>(n = 19)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Micronúcleos</td><td class="num">0,10 ± 0,36</td><td class="num">0,10 ± 0,36</td><td class="num">0,43 ± 0,51</td></tr>
+        <tr><td>Binucleadas</td><td class="num">17,42 ± 15,35</td><td class="num">17,39 ± 15,20</td><td class="num">0,07 ± 0,27</td></tr>
+        <tr><td>Brotamento nuclear</td><td class="num">0,16 ± 0,42</td><td class="num">0,16 ± 0,42</td><td class="num">0,00 ± 0,00</td></tr>
+        <tr><td>Cariorrexe</td><td class="num">9,02 ± 18,25</td><td class="num">9,33 ± 18,20</td><td class="num">22,07 ± 6,50</td></tr>
+        <tr><td>Cariólise</td><td class="num">722,40 ± 297,74</td><td class="num">718,35 ± 296,16</td><td class="num">180,79 ± 68,40</td></tr>
+        <tr><td>Picnose</td><td class="num">14,44 ± 16,28</td><td class="num">14,61 ± 16,16</td><td class="num">161,50 ± 65,93</td></tr>
+        <tr class="destaque"><td>Células normais</td><td class="num">1.178,88 ± 344,72</td><td class="num">1.189,25 ± 344,15</td><td class="num">1.632,36 ± 61,97</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="tab-nota">Não rodei teste de hipótese entre as duas primeiras colunas: o artigo publica
+  só média e desvio, sem dado bruto, e um p-valor derivado de estatística-resumo sobre distribuições
+  assimétricas seria frágil demais para a tese. O padrão dispensa teste.</p>
+
+  <h2>Os quatro argumentos</h2>
+  <p class="h2-sub">Cada um é verificável de forma independente. Marque os que se sustentam e
+  derrube os que não se sustentam — é isso que preciso saber.</p>
+
+  <div class="grupo">
+
+    <div class="iv" id="ivC1">
+      <div class="iv-top"><span class="iv-num">C1</span><h3>As 50 lâminas são a coorte já publicada</h3>
+        <span class="tagx novo">novo</span></div>
+      <p class="iv-body">Sete marcadores independentes coincidem até a segunda casa decimal, com o
+      artigo reportando n&nbsp;=&nbsp;49. Micronúcleos e brotamento batem exatamente. Testei se
+      alguma exclusão única reproduziria o n&nbsp;=&nbsp;49: nenhuma zera a diferença, o que sugere
+      uma ou duas correções de registro entre o dataset publicado e a planilha de hoje — mas não põe
+      a identidade da coorte em dúvida. <strong>Se as 50 são a coorte antiga, elas não são uma
+      amostra das 366 atuais.</strong></p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Revisão do argumento C1">
+          <label class="tri ok"><input type="radio" name="tC1" value="ok" data-n="C1"><span>Confere</span></label>
+          <label class="tri no"><input type="radio" name="tC1" value="no" data-n="C1"><span>Não confere</span></label>
+          <span class="estado" data-estado="C1"></span>
+        </div>
+        <textarea class="cmt" data-n="C1" data-rotulo="C1 (as 50 são a coorte publicada)" rows="1"
+          aria-label="Comentário sobre C1" placeholder="Comentário…"></textarea>
+      </div>
+    </div>
+
+    <div class="iv" id="ivC2">
+      <div class="iv-top"><span class="iv-num">C2</span><h3>Cariólise zero não tem leitura biológica</h3>
+        <span class="tagx novo">novo</span></div>
+      <p class="iv-body">A cariólise é o estágio terminal normal do epitélio bucal. No artigo, o
+      <em>grupo controle</em> — crianças sem exposição — tem 180,79 ± 68,40 por 2.000 células. Nas
+      50 lâminas da planilha, a média é 722,40. Sob a leitura "branco é zero", 316 crianças
+      apresentariam <strong>zero cariólise</strong>, o que não corresponde a nenhum valor observado
+      em nenhum dos dois grupos de nenhum dos dois estudos.</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Revisão do argumento C2">
+          <label class="tri ok"><input type="radio" name="tC2" value="ok" data-n="C2"><span>Confere</span></label>
+          <label class="tri no"><input type="radio" name="tC2" value="no" data-n="C2"><span>Não confere</span></label>
+          <span class="estado" data-estado="C2"></span>
+        </div>
+        <textarea class="cmt" data-n="C2" data-rotulo="C2 (cariólise zero é implausível)" rows="1"
+          aria-label="Comentário sobre C2" placeholder="Comentário…"></textarea>
+      </div>
+    </div>
+
+    <div class="iv" id="ivC3">
+      <div class="iv-top"><span class="iv-num">C3</span><h3><code>NORMAL</code> nunca chega a 2.000 em lâmina lida</h3>
+        <span class="tagx novo">novo</span></div>
+      <p class="iv-body">Na planilha, a coluna <code>NORMAL</code> tem mínimo 217, mediana 1.214 e
+      máximo 1.726 — em nenhuma das 50 lâminas ela vale 2.000. Se as 316 tivessem sido contadas,
+      deveriam aparecer com <code>NORMAL</code> entre 1.200 e 1.700, não em branco. Isso derruba
+      também a convenção <code>NORMAL = 2000</code> que eu mesmo tinha proposto no §2.2.</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Revisão do argumento C3">
+          <label class="tri ok"><input type="radio" name="tC3" value="ok" data-n="C3"><span>Confere</span></label>
+          <label class="tri no"><input type="radio" name="tC3" value="no" data-n="C3"><span>Não confere</span></label>
+          <span class="estado" data-estado="C3"></span>
+        </div>
+        <textarea class="cmt" data-n="C3" data-rotulo="C3 (NORMAL nunca vale 2000)" rows="1"
+          aria-label="Comentário sobre C3" placeholder="Comentário…"></textarea>
+      </div>
+    </div>
+
+    <div class="iv" id="ivC4">
+      <div class="iv-top"><span class="iv-num">C4</span><h3>Cury et al. contou as células normais — não usou 2.000</h3>
+        <span class="tagx novo">novo</span></div>
+      <p class="iv-body">Resposta direta à sua pergunta. No artigo, células normais são uma
+      categoria <strong>contada</strong>: 1.189,25 ± 344,15 no exposto e 1.632,36 ± 61,97 no
+      controle, com P&nbsp;=&nbsp;,000. O "2.000" é o total de células pontuadas por criança, que as
+      7 categorias repartem entre si. Detalhe metodológico: a soma das 7 médias dá 1.949 no artigo e
+      1.942 na planilha — as 7 categorias <em>não</em> esgotam a lâmina, o que é esperado no ensaio
+      de micronúcleo bucal.</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Revisão do argumento C4">
+          <label class="tri ok"><input type="radio" name="tC4" value="ok" data-n="C4"><span>Confere</span></label>
+          <label class="tri no"><input type="radio" name="tC4" value="no" data-n="C4"><span>Não confere</span></label>
+          <span class="estado" data-estado="C4"></span>
+        </div>
+        <textarea class="cmt" data-n="C4" data-rotulo="C4 (Cury contou as normais)" rows="1"
+          aria-label="Comentário sobre C4" placeholder="Comentário…"></textarea>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>O que muda no spec</h2>
+  <p class="h2-sub">Consequências já escritas no documento de design. Numeração espelhada do spec.</p>
+
+  <div class="grupo">
+
+    <div class="iv" id="iv2.2">
+      <div class="iv-top"><span class="iv-num">2.2</span><h3>Normalização e o denominador assimétrico</h3>
+        <span class="tagx spec">spec</span></div>
+      <p class="iv-body">Corrigi o §2.2 depois de conferir a planilha: das 50 lâminas, 28 somam
+      exatamente 2.000, <strong>7 somam menos</strong> (mínimo 423) e <strong>15 somam mais</strong>
+      (máximo 2.103). O excesso é esperado — uma célula com duas anomalias entra em duas categorias,
+      então a soma conta eventos, não células. A proposta é usar como denominador a soma medida de
+      cada lâmina, e exportar também a contagem por 2.000 na convenção do artigo.</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Revisão do item 2.2">
+          <label class="tri ok"><input type="radio" name="t2.2" value="ok" data-n="2.2"><span>Confere</span></label>
+          <label class="tri no"><input type="radio" name="t2.2" value="no" data-n="2.2"><span>Não confere</span></label>
+          <span class="estado" data-estado="2.2"></span>
+        </div>
+        <textarea class="cmt" data-n="2.2" data-rotulo="2.2 (normalização)" rows="1"
+          aria-label="Comentário sobre 2.2" placeholder="Comentário…"></textarea>
+      </div>
+    </div>
+
+    <div class="iv" id="iv3.1">
+      <div class="iv-top"><span class="iv-num">3.1</span><h3>A prevalência por escola depende inteiramente da decisão</h3>
+        <span class="tagx spec">spec</span></div>
+      <p class="iv-body">Sob "branco é zero", a prevalência de alteração por escola roda sobre 366
+      crianças e é o resultado principal da tese. Sob "branco é não tabulado", ela deixa de existir:
+      não dá para calcular prevalência quando só se conhece o numerador. Não há meio-termo, e é por
+      isso que a decisão do §2.1 não pode ser adiada até a implementação.</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Revisão do item 3.1">
+          <label class="tri ok"><input type="radio" name="t3.1" value="ok" data-n="3.1"><span>Confere</span></label>
+          <label class="tri no"><input type="radio" name="t3.1" value="no" data-n="3.1"><span>Não confere</span></label>
+          <span class="estado" data-estado="3.1"></span>
+        </div>
+        <textarea class="cmt" data-n="3.1" data-rotulo="3.1 (prevalência por escola)" rows="1"
+          aria-label="Comentário sobre 3.1" placeholder="Comentário…"></textarea>
+      </div>
+    </div>
+
+    <div class="iv" id="iv8">
+      <div class="iv-top"><span class="iv-num">8</span><h3>A limitação a declarar na tese</h3>
+        <span class="tagx spec">spec</span></div>
+      <p class="iv-body">Reescrevi o item 2 do §8. Qualquer que seja a decisão, a tese precisa
+      declarar a comparação com Cury et al. — inclusive porque um leitor de banca com o artigo em
+      mãos vai fazer essa conta. Declarar antes é mais forte do que responder depois.</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Revisão do item 8">
+          <label class="tri ok"><input type="radio" name="t8" value="ok" data-n="8"><span>Confere</span></label>
+          <label class="tri no"><input type="radio" name="t8" value="no" data-n="8"><span>Não confere</span></label>
+          <span class="estado" data-estado="8"></span>
+        </div>
+        <textarea class="cmt" data-n="8" data-rotulo="8 (limitação a declarar)" rows="1"
+          aria-label="Comentário sobre 8" placeholder="Comentário…"></textarea>
+      </div>
+    </div>
+
+    <div class="iv" id="ivL224">
+      <div class="iv-top"><span class="iv-num">L224</span><h3>A lâmina de 423 células</h3>
+        <span class="tagx novo">pendência</span></div>
+      <p class="iv-body">A ficha 224, de Stela Mutti, soma 423 células nos 7 marcadores — contra o
+      mínimo de 2.000 que a sua metodologia §4.6 exige. É a menor da base por larga margem: a
+      segunda menor tem 1.015. Não é questão de normalização, é questão de a lâmina ser elegível.
+      Preciso saber se ela entra ou sai antes de fechar o Bloco&nbsp;5.</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Revisão da pendência L224">
+          <label class="tri ok"><input type="radio" name="tL224" value="ok" data-n="L224"><span>Mantém</span></label>
+          <label class="tri no"><input type="radio" name="tL224" value="no" data-n="L224"><span>Exclui</span></label>
+          <span class="estado" data-estado="L224"></span>
+        </div>
+        <textarea class="cmt" data-n="L224" data-rotulo="L224 (lâmina de 423 células)" rows="1"
+          aria-label="Comentário sobre L224" placeholder="Comentário…"></textarea>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="rb">
+  <div class="rb-inner">
+    <span class="rb-pill dc zero" id="rbDec">sem decisão</span>
+    <span class="rb-pill ok zero" id="rbOk">0 confere</span>
+    <span class="rb-pill rs zero" id="rbRs">0 ressalva</span>
+    <span class="rb-pill no zero" id="rbNo">0 não confere</span>
+    <div class="rb-reply" id="rbReply">Nada marcado — sua resposta é montada aqui.</div>
+    <button class="rb-clear" id="rbClear" type="button">limpar</button>
+    <button class="rb-copy" id="rbCopy" type="button" disabled>copiar resposta</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Chave versionada: se a numeracao mudar, suba a versao em vez de restaurar
+  // marcacoes antigas em cima de itens que nao existem mais.
+  var KEY = 'tese_brenda_comparativo_v1';
+
+  // Ordem de apresentacao na resposta. Explicita, porque os rotulos misturam
+  // numero de spec (2.2) com rotulo proprio (C1, L224) e nao ordenam sozinhos.
+  var ORDEM = ['C1', 'C2', 'C3', 'C4', '2.2', '3.1', '8', 'L224'];
+
+  var DECISAO_TXT = {
+    zero:      'Branco é zero medido — mantenho o que revisei (desfecho para os 366)',
+    naolido:   'Branco é lâmina não tabulada — o desfecho é de 50',
+    verificar: 'Vou confirmar com o laboratório antes de decidir'
+  };
+
+  var radios = Array.prototype.slice.call(document.querySelectorAll('.tri input[type="radio"]'));
+  var decRadios = Array.prototype.slice.call(document.querySelectorAll('.opt input[type="radio"]'));
+  var caixas = Array.prototype.slice.call(document.querySelectorAll('textarea.cmt'));
+
+  var porItem = {};
+  function slot(n) {
+    if (!porItem[n]) porItem[n] = { radios: [], ta: null, rotulo: n };
+    return porItem[n];
+  }
+  radios.forEach(function (r) { slot(r.getAttribute('data-n')).radios.push(r); });
+  caixas.forEach(function (t) {
+    var s = slot(t.getAttribute('data-n'));
+    s.ta = t;
+    var rot = t.getAttribute('data-rotulo');
+    if (rot) s.rotulo = rot;
+  });
+
+  var totalItens = ORDEM.length;
+  var ultimo = {};
+
+  var rbDec = document.getElementById('rbDec');
+  var rbOk = document.getElementById('rbOk');
+  var rbRs = document.getElementById('rbRs');
+  var rbNo = document.getElementById('rbNo');
+  var rbReply = document.getElementById('rbReply');
+  var rbCopy = document.getElementById('rbCopy');
+  var rbClear = document.getElementById('rbClear');
+  var caixaDec = document.querySelector('textarea.cmt[data-n="2.1"]');
+  var blocoDec = document.getElementById('dec');
+  var respostaAtual = '';
+
+  function textoDe(n) {
+    var ta = porItem[n] && porItem[n].ta;
+    return ta ? ta.value.trim() : '';
+  }
+
+  function marcadoEm(n) {
+    var v = null;
+    porItem[n].radios.forEach(function (r) { if (r.checked) v = r.value; });
+    return v;
+  }
+
+  function decisaoAtual() {
+    var v = null;
+    decRadios.forEach(function (r) { if (r.checked) v = r.value; });
+    return v;
+  }
+
+  // Estado derivado, com a precedencia anunciada no cabecalho:
+  // "nao confere" vence sempre; texto sem botao vira ressalva; "confere" com
+  // texto tambem conta como ressalva, porque o texto pede alguma coisa.
+  function estadoDe(n) {
+    var marcado = marcadoEm(n);
+    var cmt = textoDe(n);
+    if (marcado === 'no') return 'no';
+    if (cmt) return 'ressalva';
+    if (marcado === 'ok') return 'ok';
+    return null;
+  }
+
+  var LEGIVEL = { ok: 'Confere', ressalva: 'Com ressalva', no: 'Não confere' };
+  var LEGIVEL_L224 = { ok: 'Mantém', ressalva: 'Com ressalva', no: 'Exclui' };
+
+  function crescer(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = (ta.scrollHeight + 2) + 'px';
+  }
+
+  function pintar(n, estado) {
+    var alvo = document.getElementById('iv' + n);
+    if (alvo) {
+      alvo.classList.remove('st-ok', 'st-ressalva', 'st-no');
+      if (estado) alvo.classList.add('st-' + estado);
+    }
+    var etiqueta = document.querySelector('[data-estado="' + n + '"]');
+    if (etiqueta) {
+      var dic = (n === 'L224') ? LEGIVEL_L224 : LEGIVEL;
+      etiqueta.className = 'estado' + (estado ? ' s-' + estado : '');
+      etiqueta.textContent = estado ? dic[estado] : '';
+    }
+    var ta = porItem[n].ta;
+    if (ta) ta.classList.toggle('preenchida', textoDe(n).length > 0);
+  }
+
+  function pintarDecisao(v) {
+    blocoDec.classList.remove('d-zero', 'd-naolido', 'd-verificar');
+    if (v) blocoDec.classList.add('d-' + v);
+    decRadios.forEach(function (r) {
+      var rotulo = r.closest('.opt');
+      if (!rotulo) return;
+      rotulo.classList.remove('sel-zero', 'sel-naolido', 'sel-verificar');
+      if (r.checked) rotulo.classList.add('sel-' + r.value);
+    });
+    if (caixaDec) caixaDec.classList.toggle('preenchida', textoDe('2.1').length > 0);
+  }
+
+  function contaPill(el, num, rotulo) {
+    el.textContent = num + ' ' + rotulo;
+    el.classList.toggle('zero', num === 0);
+  }
+
+  function salvar() {
+    var estado = { __dec: decisaoAtual(), __decTxt: caixaDec ? caixaDec.value : '' };
+    ORDEM.forEach(function (n) {
+      var marcado = marcadoEm(n);
+      var ta = porItem[n].ta;
+      var bruto = ta ? ta.value : '';
+      if (marcado || bruto.trim()) estado[n] = { s: marcado, c: bruto };
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(estado)); } catch (e) {}
+  }
+
+  function restaurar() {
+    var bruto = null;
+    try { bruto = localStorage.getItem(KEY); } catch (e) { return; }
+    if (!bruto) return;
+    var estado;
+    try { estado = JSON.parse(bruto); } catch (e) { return; }
+    if (!estado || typeof estado !== 'object') return;
+    decRadios.forEach(function (r) {
+      if (estado.__dec === r.value) { r.checked = true; ultimo[r.getAttribute('name')] = r.value; }
+    });
+    if (caixaDec && typeof estado.__decTxt === 'string') caixaDec.value = estado.__decTxt;
+    ORDEM.forEach(function (n) {
+      var g = estado[n];
+      if (!g) return;
+      porItem[n].radios.forEach(function (r) {
+        if (g.s === r.value) { r.checked = true; ultimo[r.getAttribute('name')] = r.value; }
+      });
+      if (porItem[n].ta && typeof g.c === 'string') porItem[n].ta.value = g.c;
+    });
+  }
+
+  function achatar(txt) { return txt.replace(/\s+/g, ' ').trim(); }
+
+  function update() {
+    var confere = [], ressalvas = [], naoConfere = [];
+
+    ORDEM.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      if (e === 'ok') confere.push(n);
+      else if (e === 'ressalva') ressalvas.push({ n: n, rotulo: porItem[n].rotulo, c: achatar(textoDe(n)) });
+      else if (e === 'no') naoConfere.push({ n: n, rotulo: porItem[n].rotulo, c: achatar(textoDe(n)) });
+    });
+
+    var dec = decisaoAtual();
+    pintarDecisao(dec);
+
+    rbDec.textContent = dec ? ('decisão: ' + dec) : 'sem decisão';
+    rbDec.classList.toggle('zero', !dec);
+    contaPill(rbOk, confere.length, 'confere');
+    contaPill(rbRs, ressalvas.length, 'ressalva');
+    contaPill(rbNo, naoConfere.length, 'não confere');
+
+    var marcados = confere.length + ressalvas.length + naoConfere.length;
+    var decTxt = textoDe('2.1');
+
+    if (!dec && marcados === 0 && !decTxt) {
+      respostaAtual = '';
+      rbReply.textContent = 'Nada marcado — sua resposta é montada aqui.';
+      rbReply.classList.remove('live');
+      rbCopy.disabled = true;
+      salvar();
+      return;
+    }
+
+    var linhas = ['Comparativo Cury et al. x planilha — resposta do pesquisador',
+                  'ref: docs/superpowers/specs/2026-08-17-analise-citogenetica-design.md §2.1'];
+
+    linhas.push('', 'DECISÃO §2.1 (semântica do branco):');
+    linhas.push('- ' + (dec ? DECISAO_TXT[dec] : 'NÃO DECIDIDA — não implementar nada ainda'));
+    if (decTxt) linhas.push('- contexto: ' + achatar(decTxt));
+
+    // "Nao confere" primeiro: e o que me faz voltar atras antes de escrever.
+    if (naoConfere.length) {
+      linhas.push('', 'NÃO CONFERE:');
+      naoConfere.forEach(function (m) {
+        linhas.push('- ' + m.rotulo + (m.c ? ' — ' + m.c : ' — (sem justificativa escrita)'));
+      });
+    }
+    if (ressalvas.length) {
+      linhas.push('', 'COM RESSALVA:');
+      ressalvas.forEach(function (m) { linhas.push('- ' + m.rotulo + ' — ' + m.c); });
+    }
+    if (confere.length) {
+      linhas.push('', 'CONFERE: ' + confere.join(', '));
+    }
+
+    var faltam = totalItens - marcados;
+    if (faltam > 0) {
+      linhas.push('', '(' + faltam + (faltam > 1 ? ' itens' : ' item') + ' sem marcar, de ' + totalItens + ')');
+    } else {
+      linhas.push('', '(todos os ' + totalItens + ' itens revisados)');
+    }
+
+    respostaAtual = linhas.join('\n');
+
+    var previa = [];
+    previa.push(dec ? ('decisão: ' + dec) : 'SEM DECISÃO');
+    if (naoConfere.length) previa.push('não confere ' + naoConfere.map(function (m) { return m.n; }).join(', '));
+    if (ressalvas.length) previa.push('ressalva ' + ressalvas.map(function (m) { return m.n; }).join(', '));
+    if (confere.length) previa.push(confere.length + ' confere');
+    if (faltam > 0) previa.push(faltam + ' sem marcar');
+    rbReply.textContent = previa.join('  ·  ');
+    rbReply.classList.add('live');
+    rbCopy.disabled = false;
+    salvar();
+  }
+
+  // Clique no mesmo botao desmarca — permite voltar ao estado "sem opiniao".
+  function ligarToggle(lista) {
+    lista.forEach(function (r) {
+      r.addEventListener('click', function () {
+        var grupo = r.getAttribute('name');
+        if (ultimo[grupo] === r.value) {
+          r.checked = false;
+          ultimo[grupo] = null;
+        } else {
+          ultimo[grupo] = r.value;
+        }
+        update();
+      });
+    });
+  }
+  ligarToggle(radios);
+  ligarToggle(decRadios);
+
+  caixas.forEach(function (ta) {
+    ta.addEventListener('input', function () { crescer(ta); update(); });
+  });
+
+  rbClear.addEventListener('click', function () {
+    radios.forEach(function (r) { r.checked = false; });
+    decRadios.forEach(function (r) { r.checked = false; });
+    caixas.forEach(function (ta) { ta.value = ''; crescer(ta); });
+    ultimo = {};
+    update();
+  });
+
+  // Copia com fallback para file://, onde navigator.clipboard costuma ser
+  // bloqueada.
+  function copiar(texto, btn, rotulo, rotuloOk) {
+    function pronto() {
+      btn.classList.add('copied');
+      btn.textContent = rotuloOk;
+      setTimeout(function () {
+        btn.classList.remove('copied');
+        btn.textContent = rotulo;
+      }, 1600);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      pronto();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(pronto, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  rbCopy.addEventListener('click', function () {
+    if (respostaAtual) copiar(respostaAtual, rbCopy, 'copiar resposta', 'copiado');
+  });
+
+  // Exposto so para o teste com jsdom.
+  if (typeof window !== 'undefined') {
+    window.__companion = {
+      update: update,
+      resposta: function () { return respostaAtual; },
+      ordem: ORDEM
+    };
+  }
+
+  restaurar();
+  caixas.forEach(crescer);
+  update();
+})();
+</script>
+</body>
+</html>

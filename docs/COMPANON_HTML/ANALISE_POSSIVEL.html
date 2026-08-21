@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O que sobra de analisável — tese Brenda</title>
+<style>
+  :root {
+    --ivory:  #FAF9F5;
+    --paper:  #FFFFFF;
+    --slate:  #141413;
+    --clay:   #D97757;
+    --clay-d: #B85C3E;
+    --clay-bg:#FDF6F2;
+    --oat:    #E3DACC;
+    --olive:  #788C5D;
+    --olive-d:#5E7047;
+    --olive-bg:#F1F5EA;
+    --ice:    #5F7A8A;
+    --ice-d:  #4A626F;
+    --ice-bg: #EDF2F5;
+    --g100:   #F0EEE6;
+    --g200:   #E6E3DA;
+    --g300:   #D1CFC5;
+    --g500:   #87867F;
+    --g700:   #3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--ivory);
+    color: var(--slate);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px 170px; }
+
+  /* ── cabecalho ──────────────────────── */
+  header.page-head { padding: 56px 0 8px; position: relative; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--g500);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow::before {
+    content: ""; width: 24px; height: 1.5px;
+    background: var(--clay); flex: none;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(32px, 4.6vw, 46px);
+    line-height: 1.08;
+    letter-spacing: -0.018em;
+    margin: 0 0 10px;
+  }
+  .lede { font-size: 16px; color: var(--g700); max-width: 660px; margin: 0 0 22px; }
+
+  /* ── legenda dos estados ────────────── */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+  .lg {
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1.5px solid var(--g300); border-radius: 10px;
+    background: var(--paper); padding: 11px 14px;
+    flex: 1 1 230px; min-width: 0;
+  }
+  .lg-key {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: 999px; padding: 3px 10px; flex: none; color: #fff;
+    margin-top: 1px; white-space: nowrap;
+  }
+  .lg-key.cc { background: var(--olive); }
+  .lg-key.dd { background: var(--clay); }
+  .lg-key.es { background: var(--ice); }
+  .lg-txt { font-size: 12.5px; color: var(--g700); line-height: 1.4; }
+  .legend-nota {
+    font-size: 13px; color: var(--g700); margin: 0 0 30px;
+    padding-left: 14px; border-left: 3px solid var(--oat); max-width: 66ch;
+  }
+
+  /* ── cartao da tese central ─────────── */
+  .thesis {
+    background: var(--paper);
+    border: 1.5px solid var(--g300);
+    border-radius: 14px;
+    padding: 22px 24px 22px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .thesis.st-concordo { border-color: var(--olive); background: var(--olive-bg); }
+  .thesis.st-discordo { border-color: var(--clay);  background: var(--clay-bg); }
+  .thesis.st-nota     { border-color: var(--clay);  background: var(--clay-bg); }
+  .thesis-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 12px;
+  }
+  .thesis blockquote {
+    margin: 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17.5px;
+    line-height: 1.5;
+    color: var(--slate);
+    max-width: 62ch;
+  }
+  .thesis blockquote b { font-style: normal; font-weight: 600; color: var(--clay-d); }
+  .thesis p.after {
+    font-size: 14px; color: var(--g700);
+    margin: 16px 0 0; max-width: 66ch;
+    padding-top: 14px; border-top: 1px dashed var(--g300);
+  }
+
+  /* ── divisor ────────────────────────── */
+  .divider {
+    display: flex; align-items: center; gap: 16px;
+    margin: 46px 0 26px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--g500);
+    white-space: nowrap;
+  }
+  .divider::before, .divider::after {
+    content: ""; flex: 1; height: 1px; background: var(--g300);
+  }
+
+  /* ── moldura de secao ───────────────── */
+  .artifact {
+    background: var(--paper);
+    border: 1.5px solid var(--g300);
+    border-radius: 14px;
+    padding: 30px clamp(16px, 3.5vw, 34px) 30px;
+    margin-bottom: 22px;
+  }
+  .artifact h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(23px, 3vw, 29px);
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    margin: 6px 0 6px;
+  }
+  .art-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--g500);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .art-eyebrow::before {
+    content: ""; width: 24px; height: 1.5px;
+    background: var(--clay); flex: none;
+  }
+  .art-sub { font-size: 14.5px; color: var(--g700); max-width: 68ch; margin: 0 0 26px; }
+  code {
+    font-family: var(--mono); font-size: 12.5px;
+    background: var(--g100); border-radius: 5px; padding: 1px 5px;
+  }
+
+  /* ── nota de rodape de secao ────────── */
+  .secao-nota {
+    margin-top: 26px; padding: 16px 18px;
+    border: 1.5px solid var(--g300); border-radius: 12px;
+    background: var(--ivory);
+    transition: border-color 140ms, background 140ms;
+  }
+  .secao-nota.st-concordo { border-color: var(--olive); background: var(--olive-bg); }
+  .secao-nota.st-discordo { border-color: var(--clay);  background: var(--clay-bg); }
+  .secao-nota.st-nota     { border-color: var(--clay);  background: var(--clay-bg); }
+  .secao-nota .rot {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--g500); margin-bottom: 10px;
+  }
+
+  /* ── fatos ──────────────────────────── */
+  .findings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 860px) { .findings { grid-template-columns: 1fr; } }
+  .fnd {
+    border: 1.5px solid var(--g300);
+    border-left: 3px solid var(--clay);
+    border-radius: 10px;
+    background: var(--ivory);
+    padding: 16px 18px;
+    display: flex; flex-direction: column;
+    scroll-margin-top: 20px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .fnd.st-concordo { border-color: var(--olive); border-left-color: var(--olive); background: var(--olive-bg); }
+  .fnd.st-discordo { border-color: var(--clay);  background: var(--clay-bg); }
+  .fnd.st-nota     { border-color: var(--clay);  background: var(--clay-bg); }
+  .fnd-num {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; color: var(--clay-d); margin-bottom: 6px;
+  }
+  .fnd h4 {
+    font-family: var(--serif); font-weight: 500; font-size: 16.5px;
+    margin: 0 0 8px; letter-spacing: -0.01em; line-height: 1.25;
+  }
+  .fnd p { font-size: 13.5px; color: var(--g700); margin: 0 0 auto; }
+  .fnd .iv-foot { margin-top: 14px; }
+
+  /* ── cartoes largos (riscos) ────────── */
+  .cards { display: flex; flex-direction: column; gap: 14px; }
+  .iv {
+    border: 1.5px solid var(--g300);
+    border-radius: 12px;
+    background: var(--ivory);
+    padding: 18px 20px 16px;
+    scroll-margin-top: 20px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .iv.st-concordo  { border-color: var(--olive); background: var(--olive-bg); }
+  .iv.st-discordo  { border-color: var(--clay);  background: var(--clay-bg); }
+  .iv.st-nota      { border-color: var(--clay);  background: var(--clay-bg); }
+  .iv.st-escolhido { border-color: var(--olive); background: var(--olive-bg); }
+  .iv.st-ressalva  { border-color: var(--clay);  background: var(--clay-bg); }
+  .iv-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .iv-num {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    color: var(--clay-d); flex: none;
+  }
+  .iv h3 {
+    font-family: var(--serif); font-weight: 500; font-size: 19px;
+    letter-spacing: -0.01em; margin: 0; flex: 1 1 auto; min-width: 200px;
+  }
+  .chips { display: flex; gap: 8px; align-items: center; flex: none; }
+  .effort {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.06em; border-radius: 999px;
+    padding: 3px 10px; border: 1.5px solid transparent;
+  }
+  .effort.rec { background: #EEF2E6; color: var(--olive); border-color: #C9D4B6; }
+  .effort.n   { background: var(--oat); color: #7A6A4F; border-color: var(--g300); }
+  .iv-body { font-size: 14px; color: var(--g700); margin: 10px 0 0; }
+  .iv-body strong { color: var(--slate); font-weight: 600; }
+  .iv-why { display: flex; gap: 8px; align-items: baseline; margin-top: 10px; font-size: 13.5px; color: var(--g700); }
+  .iv-why .tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--olive); flex: none;
+  }
+  .iv-why.debate .tag { color: var(--clay-d); }
+  .iv-foot { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--g300); }
+
+  /* ── controles ──────────────────────── */
+  .triage { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .tri { position: relative; display: inline-flex; }
+  .tri input {
+    position: absolute; opacity: 0;
+    width: 1px; height: 1px; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0);
+  }
+  .tri span {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+    padding: 6px 14px; border-radius: 999px;
+    border: 1.5px solid var(--g300); background: var(--paper);
+    color: var(--g700); cursor: pointer; user-select: none;
+    transition: background 120ms, border-color 120ms, color 120ms;
+  }
+  .tri span:hover { border-color: var(--g500); }
+  .tri input:focus-visible + span { outline: 2px solid var(--slate); outline-offset: 2px; }
+  .tri.cc input:checked + span { background: var(--olive); border-color: var(--olive-d); color: #fff; }
+  .tri.dd input:checked + span { background: var(--clay);  border-color: var(--clay-d);  color: #fff; }
+  .tri.es input:checked + span { background: var(--ice);   border-color: var(--ice-d);   color: #fff; }
+
+  .estado {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--g500); margin-left: auto; padding-left: 10px; text-align: right;
+  }
+  .estado.s-concordo, .estado.s-escolhido { color: var(--olive-d); }
+  .estado.s-discordo, .estado.s-nota, .estado.s-ressalva { color: var(--clay-d); }
+
+  textarea.cmt {
+    display: block; width: 100%; margin-top: 10px;
+    font-family: var(--sans); font-size: 13.5px; line-height: 1.5;
+    color: var(--slate); background: var(--paper);
+    border: 1.5px solid var(--g300); border-radius: 9px;
+    padding: 9px 12px; resize: none; overflow: hidden; min-height: 42px;
+    transition: border-color 120ms, box-shadow 120ms;
+  }
+  textarea.cmt::placeholder { color: var(--g500); }
+  textarea.cmt:focus {
+    outline: none; border-color: var(--clay);
+    box-shadow: 0 0 0 3px rgba(217, 119, 87, .16);
+  }
+  textarea.cmt.preenchida { border-color: var(--clay); }
+
+  /* ── tabelas de dado ────────────────── */
+  .mock {
+    margin: 14px 0 2px;
+    border: 1.5px solid var(--g300);
+    border-radius: 10px;
+    background: var(--paper);
+    overflow-x: auto;
+  }
+  .mock-cap {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--g500); padding: 10px 14px 0;
+  }
+  table.placar { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 520px; }
+  table.placar th {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--g500); text-align: right;
+    padding: 10px 10px 8px; border-bottom: 1px solid var(--g200);
+  }
+  table.placar th:first-child { text-align: left; padding-left: 14px; }
+  table.placar th:last-child { text-align: left; padding-right: 14px; }
+  table.placar td { padding: 9px 10px; border-bottom: 1px solid var(--g100); text-align: right; }
+  table.placar td:first-child { text-align: left; padding-left: 14px; font-weight: 600; }
+  table.placar td:last-child { text-align: left; padding-right: 14px; }
+  table.placar tr:last-child td { border-bottom: none; }
+  table.placar tr.fecha td:first-child { color: var(--clay-d); }
+  table.placar tr.fecha { background: var(--clay-bg); }
+  table.placar tr.controle td:first-child { color: var(--ice-d); }
+  table.placar tr.controle { background: var(--ice-bg); }
+  .num-zero { color: var(--g300); }
+  .lq { color: var(--g300); font-family: var(--mono); font-size: 12px; }
+  .badge {
+    font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: 999px; padding: 2px 9px; white-space: nowrap;
+  }
+  .badge.on  { background: var(--clay); color: #fff; }
+  .badge.off { background: var(--g100); color: var(--g500); border: 1px solid var(--g200); }
+  .badge.ic  { background: var(--ice); color: #fff; }
+
+  /* ── perguntas em aberto ────────────── */
+  .qs { display: flex; flex-direction: column; gap: 12px; }
+  .q {
+    display: flex; gap: 14px; align-items: flex-start;
+    border: 1.5px solid var(--g300); border-radius: 12px;
+    background: var(--ivory); padding: 16px 18px;
+  }
+  .q-num {
+    font-family: var(--serif); font-size: 22px; font-weight: 500;
+    color: var(--clay); line-height: 1; flex: none;
+    width: 30px; text-align: center; padding-top: 2px;
+  }
+  .q-txt { font-size: 14px; color: var(--g700); flex: 1 1 auto; min-width: 0; }
+  .q-txt b { color: var(--slate); font-weight: 600; display: block; margin-bottom: 3px; font-size: 14.5px; }
+
+  /* ── fora de escopo ─────────────────── */
+  .oos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .oos span {
+    font-family: var(--mono); font-size: 11.5px; color: var(--g500);
+    background: var(--g100); border: 1px solid var(--g200);
+    border-radius: 999px; padding: 4px 12px;
+  }
+
+  /* ── barra fixa de resposta ─────────── */
+  .replybar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--slate); color: var(--ivory);
+    z-index: 50; box-shadow: 0 -8px 24px rgba(20,20,19,.15);
+  }
+  .replybar-inner {
+    max-width: 980px; margin: 0 auto; padding: 11px 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .rb-counts { display: flex; gap: 5px; flex: none; }
+  .rb-pill {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.03em; padding: 4px 9px; border-radius: 999px;
+    white-space: nowrap; border: 1.5px solid transparent; color: #fff;
+  }
+  .rb-pill.cc { background: var(--olive); border-color: var(--olive-d); }
+  .rb-pill.dd { background: var(--clay);  border-color: var(--clay-d); }
+  .rb-pill.es { background: var(--ice);   border-color: var(--ice-d); }
+  .rb-pill.tx { background: var(--g700);  border-color: var(--g500); }
+  .rb-pill.zero { background: transparent; color: var(--g500); border-color: var(--g700); }
+  .rb-reply {
+    flex: 1; font-family: var(--mono); font-size: 12px; color: var(--g300);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  .rb-reply.live { color: var(--ivory); }
+  button.rb-copy {
+    flex: none; font-family: var(--mono); font-size: 12px; letter-spacing: 0.03em;
+    background: var(--clay); color: #fff; border: 1.5px solid var(--clay-d);
+    border-radius: 8px; padding: 8px 16px; cursor: pointer;
+    transition: background 120ms, opacity 120ms;
+  }
+  button.rb-copy:hover:not(:disabled) { background: var(--clay-d); }
+  button.rb-copy:disabled { opacity: .35; cursor: default; }
+  button.rb-copy.copied { background: var(--olive); border-color: var(--olive); }
+  button.rb-clear {
+    flex: none; font-family: var(--mono); font-size: 11px;
+    background: transparent; color: var(--g500);
+    border: 1.5px solid var(--g700); border-radius: 8px;
+    padding: 8px 12px; cursor: pointer;
+    transition: color 120ms, border-color 120ms;
+  }
+  button.rb-clear:hover { color: var(--ivory); border-color: var(--g500); }
+  @media (max-width: 860px) {
+    .replybar-inner { flex-wrap: wrap; gap: 8px; padding: 10px 16px; }
+    .rb-reply { order: 3; flex-basis: 100%; }
+  }
+
+  /* ── rodape ─────────────────────────── */
+  footer { margin-top: 46px; font-size: 13px; color: var(--g500); }
+  footer code { font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <div class="eyebrow">tese brenda &middot; auditoria da planilha final &middot; para decisão</div>
+    <h1>O que sobra de analisável</h1>
+    <p class="lede">Companion do resumo que mandei no chat, depois de auditar
+    <code>planilha_banco_de_dados.xlsx</code> inteira. Os números <b>F1–F5</b>, <b>R1–R2</b>,
+    <b>A/B/C</b> e <b>P1–P2</b> são definidos aqui para debatermos por número. Tudo é comentável,
+    inclusive as afirmações que eu fiz sem te perguntar. A barra no rodapé monta a resposta para
+    você copiar e me mandar.</p>
+
+    <div class="legend">
+      <div class="lg">
+        <span class="lg-key cc">Concordo</span>
+        <span class="lg-txt">O fato está certo. Sigo em frente com ele como base.</span>
+      </div>
+      <div class="lg">
+        <span class="lg-key dd">Discordo</span>
+        <span class="lg-txt">Está errado ou incompleto. <strong>Discordância entra em destaque</strong> na resposta — é o que eu mais preciso enxergar.</span>
+      </div>
+      <div class="lg">
+        <span class="lg-key es">Escolho</span>
+        <span class="lg-txt">Só nos três caminhos, e é <strong>escolha única</strong>: marcar um desmarca o outro.</span>
+      </div>
+    </div>
+
+    <p class="legend-nota"><strong>Regras de precedência</strong>, para não haver dúvida do que a
+    resposta vai dizer. Nos fatos e riscos: o botão manda, e o comentário vira a justificativa dele;
+    comentário <em>sem</em> botão vale como <strong>Comentado</strong>, nem concordância nem
+    discordância. Nos caminhos: comentário no caminho escolhido vira <strong>escolhido com
+    ajustes</strong>; comentário num caminho não escolhido vira <strong>ressalva</strong>, e a
+    ressalva aparece na resposta mesmo sem escolha nenhuma feita.</p>
+
+    <div class="thesis" id="ivT">
+      <div class="thesis-label">A afirmação central</div>
+      <blockquote>O desenho <i>exposto &times; controle</i> não é sustentável por estes dados.
+      <b>O grupo controle não tem um único biomarcador</b> — nem metal em saliva, nem lâmina lida.
+      As 55 crianças da UFBA têm apenas questionário.</blockquote>
+      <p class="after">Isso não é um detalhe de implementação: é o eixo do artigo de referência e do
+      Bloco 10 do notebook. Com metais fora por decisão sua e com as 50 lâminas lidas todas vindo de
+      escolas expostas, não sobra nenhuma variável de desfecho medida nos dois grupos. O Mann-Whitney
+      exposto &times; controle não tem como rodar sobre biomarcador nenhum — e nenhum ajuste de
+      código conserta isso, porque a medida não existe.</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Concordância com a afirmação central">
+          <label class="tri cc"><input type="radio" name="tT" value="concordo" data-n="T"><span>Concordo</span></label>
+          <label class="tri dd"><input type="radio" name="tT" value="discordo" data-n="T"><span>Discordo</span></label>
+          <span class="estado" data-estado="T"></span>
+        </div>
+        <textarea class="cmt nota" data-n="T" data-rotulo="Afirmação central (sem controle com biomarcador)" rows="1" aria-label="Comentário sobre a afirmação central" placeholder="Comentário sobre a afirmação central…"></textarea>
+      </div>
+    </div>
+  </header>
+
+  <div class="divider">Os cinco fatos</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">3 abas &middot; 55 colunas &middot; 433 fichas &middot; auditado em 17/08/2026</div>
+    <h2>O que a planilha final contém de fato</h2>
+    <p class="art-sub">Tudo aqui foi verificado abrindo o arquivo, não inferido dos documentos de
+    <code>planning/</code>. Onde o que achei contradiz <code>RESEARCH_INVARIANTS.md</code>, quem está
+    desatualizado é o documento — mas quero sua confirmação antes de reescrevê-lo.</p>
+
+    <div class="findings">
+      <div class="fnd" id="ivF1">
+        <div class="fnd-num">F1</div>
+        <h4>Metais em saliva: fora</h4>
+        <p>Nenhuma coluna de metal nas três abas. As colunas <code>75As</code>, <code>114Cd</code>,
+        <code>207Pb</code>, <code>60Ni</code> e <code>121Sb</code> existiam no banco anterior, com
+        <strong>378 crianças medidas</strong>, e você confirmou que saíram de propósito.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o fato 1">
+            <label class="tri cc"><input type="radio" name="tF1" value="concordo" data-n="F1"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tF1" value="discordo" data-n="F1"><span>Discordo</span></label>
+            <span class="estado" data-estado="F1"></span>
+          </div>
+          <textarea class="cmt nota" data-n="F1" data-rotulo="F1 (metais em saliva fora)" rows="1" aria-label="Comentário sobre o fato 1" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="fnd" id="ivF2">
+        <div class="fnd-num">F2</div>
+        <h4>50 lâminas, todas expostas</h4>
+        <p>Os 7 marcadores existem para <strong>50 das 433 crianças</strong>, e as 50 vêm das seis
+        escolas — <strong>nenhuma da UFBA</strong>. As somas por linha batem com o protocolo de 2.000
+        células (mediana exata de 2000), então são leituras válidas. Você confirmou que 50 é final.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o fato 2">
+            <label class="tri cc"><input type="radio" name="tF2" value="concordo" data-n="F2"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tF2" value="discordo" data-n="F2"><span>Discordo</span></label>
+            <span class="estado" data-estado="F2"></span>
+          </div>
+          <textarea class="cmt nota" data-n="F2" data-rotulo="F2 (50 lâminas, todas expostas)" rows="1" aria-label="Comentário sobre o fato 2" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="fnd" id="ivF3">
+        <div class="fnd-num">F3</div>
+        <h4>Água por escola, não por criança</h4>
+        <p>São <strong>7 pontos</strong>: B1 (EMBASA) e E1–E6, que mapeiam 1:1 nas seis escolas.
+        A junção é limpa pela instituição. Mas a exposição passa a variar entre 7 unidades, não entre
+        433 crianças — e <strong>a UFBA não tem ponto de água próprio</strong>.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o fato 3">
+            <label class="tri cc"><input type="radio" name="tF3" value="concordo" data-n="F3"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tF3" value="discordo" data-n="F3"><span>Discordo</span></label>
+            <span class="estado" data-estado="F3"></span>
+          </div>
+          <textarea class="cmt nota" data-n="F3" data-rotulo="F3 (água por escola)" rows="1" aria-label="Comentário sobre o fato 3" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="fnd" id="ivF4">
+        <div class="fnd-num">F4</div>
+        <h4>Os elementos não são os do plano</h4>
+        <p>A água traz Al, Ba, Ca, Co, Cu, <strong>Cr</strong>, Fe, K, Mg, Mn, Na, Ni e Zn.
+        <strong>Não traz As, Cd, Pb nem Hg</strong> — que são os quatro invariantes escritos em
+        <code>RESEARCH_INVARIANTS.md</code>. O documento precisa ser reescrito.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o fato 4">
+            <label class="tri cc"><input type="radio" name="tF4" value="concordo" data-n="F4"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tF4" value="discordo" data-n="F4"><span>Discordo</span></label>
+            <span class="estado" data-estado="F4"></span>
+          </div>
+          <textarea class="cmt nota" data-n="F4" data-rotulo="F4 (elementos ≠ As/Cd/Pb/Hg)" rows="1" aria-label="Comentário sobre o fato 4" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="fnd" id="ivF5">
+        <div class="fnd-num">F5</div>
+        <h4>As duas abas são iguais nos valores</h4>
+        <p><code>COM SALIVA</code> e <code>SEM SALIVA</code> têm as <strong>mesmas 433 fichas</strong>,
+        nenhuma exclusiva de um lado. O que as separa está na <strong>cor das linhas</strong>, que o
+        pandas não lê: vermelho aparece em 10 linhas numa e 3 na outra, amarelo em 8 só na
+        <code>COM SALIVA</code>.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o fato 5">
+            <label class="tri cc"><input type="radio" name="tF5" value="concordo" data-n="F5"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tF5" value="discordo" data-n="F5"><span>Discordo</span></label>
+            <span class="estado" data-estado="F5"></span>
+          </div>
+          <textarea class="cmt nota" data-n="F5" data-rotulo="F5 (abas iguais, cor é o que separa)" rows="1" aria-label="Comentário sobre o fato 5" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="secao-nota" id="ivS1">
+      <div class="rot">Fim da seção — o quadro geral está certo?</div>
+      <div class="triage" role="radiogroup" aria-label="Concordância com a seção dos fatos">
+        <label class="tri cc"><input type="radio" name="tS1" value="concordo" data-n="S1"><span>Concordo</span></label>
+        <label class="tri dd"><input type="radio" name="tS1" value="discordo" data-n="S1"><span>Discordo</span></label>
+        <span class="estado" data-estado="S1"></span>
+      </div>
+      <textarea class="cmt nota" data-n="S1" data-rotulo="Seção “Os cinco fatos”" rows="1" aria-label="Comentário sobre a seção dos fatos" placeholder="Faltou algum fato? Algum está errado?"></textarea>
+    </div>
+  </div>
+
+  <div class="divider">Os números, para você conferir</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">contagens verificadas na planilha</div>
+    <h2>Quem tem o quê</h2>
+    <p class="art-sub">A coluna que importa é a última: das 433 crianças com questionário, só 50
+    entram em qualquer análise de desfecho. A linha da UFBA é a que carrega o problema — questionário
+    completo, biomarcador nenhum, água nenhuma.</p>
+
+    <div class="mock">
+      <div class="mock-cap">por instituição de coleta</div>
+      <table class="placar">
+        <thead>
+          <tr>
+            <th>Instituição</th><th>Fichas</th><th>Grupo</th><th>Ponto de água</th>
+            <th>FLUOR</th><th>Lâminas lidas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Círculo Operário</td><td>91</td><td><span class="badge off">exposto</span></td><td>E1</td><td>0,81</td><td>3</td></tr>
+          <tr><td>Francisco Pinto</td><td>83</td><td><span class="badge off">exposto</span></td><td>E3</td><td>0,65</td><td>11</td></tr>
+          <tr><td>Nazareth Falcão</td><td>65</td><td><span class="badge off">exposto</span></td><td>E6</td><td>0,90</td><td>9</td></tr>
+          <tr class="fecha"><td>Elpídio Paranhos</td><td>64</td><td><span class="badge on">Cr acima do VMP</span></td><td>E5</td><td>0,74</td><td>11</td></tr>
+          <tr><td>Edvaldo M. Boaventura</td><td>51</td><td><span class="badge off">exposto</span></td><td>E4</td><td>0,69</td><td>9</td></tr>
+          <tr><td>Stela Mutti</td><td>24</td><td><span class="badge off">exposto</span></td><td>E2</td><td>0,81</td><td>7</td></tr>
+          <tr class="controle"><td>UFBA</td><td>55</td><td><span class="badge ic">controle</span></td><td class="num-zero">nenhum</td><td class="num-zero">—</td><td class="num-zero">0</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mock">
+      <div class="mock-cap">água — só os elementos com algum valor acima do LQ (mg/L)</div>
+      <table class="placar">
+        <thead>
+          <tr><th>Ponto</th><th>Cálcio</th><th>Magnésio</th><th>Sódio</th><th>Potássio</th><th>Bário</th><th>Cromo</th><th>Alumínio</th><th>Ferro</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>B1 (EMBASA)</td><td>33,54</td><td>3,60</td><td>8,62</td><td>5,81</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td><td>0,057</td><td>0,087</td></tr>
+          <tr><td>E1 Círculo Operário</td><td>6,55</td><td>4,81</td><td>6,35</td><td>1,03</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td></tr>
+          <tr><td>E2 Stela Mutti</td><td>16,16</td><td>13,05</td><td>18,57</td><td>4,41</td><td>0,066</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td></tr>
+          <tr><td>E3 Francisco Pinto</td><td>9,20</td><td>7,84</td><td>10,23</td><td>1,98</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td></tr>
+          <tr><td>E4 Edvaldo M. B.</td><td>9,37</td><td>5,70</td><td>8,18</td><td>1,47</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td></tr>
+          <tr class="fecha"><td>E5 Elpídio Paranhos</td><td>10,96</td><td>8,95</td><td>11,65</td><td>2,43</td><td class="lq">&lt;LQ</td><td>0,109</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td></tr>
+          <tr><td>E6 Nazareth Falcão</td><td>16,94</td><td>13,87</td><td>19,29</td><td>4,76</td><td>0,069</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td><td class="lq">&lt;LQ</td></tr>
+          <tr><td><em>VMP Portaria 888/2021</em></td><td class="num-zero">—</td><td class="num-zero">—</td><td class="num-zero">—</td><td class="num-zero">—</td><td>0,7</td><td>0,05</td><td>0,2</td><td>0,3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mock">
+      <div class="mock-cap">marcadores citogenéticos nas 50 lâminas — contagem por 2.000 células</div>
+      <table class="placar">
+        <thead>
+          <tr><th>Marcador</th><th>Média</th><th>Mediana</th><th>Mínimo</th><th>Máximo</th><th>Serve para teste?</th></tr>
+        </thead>
+        <tbody>
+          <tr class="fecha"><td>Micronúcleo</td><td>0,10</td><td>0</td><td>0</td><td>2</td><td><span class="badge on">quase todo zero</span></td></tr>
+          <tr class="fecha"><td>Broto nuclear</td><td>0,16</td><td>0</td><td>0</td><td>2</td><td><span class="badge on">quase todo zero</span></td></tr>
+          <tr><td>Binucleadas</td><td>17,42</td><td>13,5</td><td>1</td><td>66</td><td><span class="badge off">sim</span></td></tr>
+          <tr><td>Cariorrexe</td><td>9,02</td><td>3</td><td>0</td><td>96</td><td><span class="badge off">sim</span></td></tr>
+          <tr><td>Cariólise</td><td>722,40</td><td>693,5</td><td>197</td><td>1558</td><td><span class="badge off">sim</span></td></tr>
+          <tr><td>Picnose</td><td>14,44</td><td>8</td><td>0</td><td>64</td><td><span class="badge off">sim</span></td></tr>
+          <tr><td>Normais</td><td>1178,88</td><td>1214,5</td><td>217</td><td>1726</td><td><span class="badge off">sim</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mock">
+      <div class="mock-cap">variação individual dentro das 50 — o que dá para cruzar</div>
+      <table class="placar">
+        <thead><tr><th>Covariável</th><th>Níveis</th><th>Distribuição</th></tr></thead>
+        <tbody>
+          <tr><td>Sexo</td><td>2</td><td>25 meninos, 25 meninas</td></tr>
+          <tr><td>Idade</td><td>10</td><td>7 a 12+ anos, moda em 9</td></tr>
+          <tr><td>Consumo de peixe</td><td>5</td><td>26 comem 1–2×/semana, 17 nenhum</td></tr>
+          <tr><td>Água da EMBASA em casa</td><td>2</td><td>22 sim, 26 não</td></tr>
+          <tr><td>Tem filtro de água</td><td>2</td><td>21 sim, 26 não</td></tr>
+          <tr><td>Bairro de moradia</td><td>12</td><td>Candolândia 12, Centro 7, Bonfim 7</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="secao-nota" id="ivS2">
+      <div class="rot">Fim da seção — os números batem com o que você esperava?</div>
+      <div class="triage" role="radiogroup" aria-label="Concordância com os números">
+        <label class="tri cc"><input type="radio" name="tS2" value="concordo" data-n="S2"><span>Concordo</span></label>
+        <label class="tri dd"><input type="radio" name="tS2" value="discordo" data-n="S2"><span>Discordo</span></label>
+        <span class="estado" data-estado="S2"></span>
+      </div>
+      <textarea class="cmt nota" data-n="S2" data-rotulo="Seção “Os números”" rows="1" aria-label="Comentário sobre os números" placeholder="Algum número está diferente do que você tem?"></textarea>
+    </div>
+  </div>
+
+  <div class="divider">O que isso impede</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">dois riscos que mudam o que dá para prometer</div>
+    <h2>Onde a estatística não vai colaborar</h2>
+    <p class="art-sub">Prefiro dizer isto agora do que produzir uma tabela bonita que não sustenta
+    conclusão. Os dois pontos abaixo limitam o que o notebook pode afirmar, independentemente do
+    caminho que você escolher na próxima seção.</p>
+
+    <div class="cards">
+      <div class="iv" id="ivR1">
+        <div class="iv-top">
+          <span class="iv-num">R1</span>
+          <h3>Micronúcleo não tem sinal para testar</h3>
+        </div>
+        <p class="iv-body">O micronúcleo é <strong>o marcador que dá nome ao artigo de referência</strong>,
+        e nestas 50 lâminas ele é quase todo zero: média 0,10 em 2.000 células, mediana 0, máximo 2.
+        Broto nuclear é igual. Teste de hipótese e correlação sobre variável quase constante devolvem
+        ruído — o <em>p</em> vai variar ao sabor de uma ou duas crianças.</p>
+        <div class="iv-why">
+          <span class="tag">saída</span>
+          <span>Reportar micronúcleo e broto <strong>descritivamente</strong>, com contagem bruta e
+          proporção de zeros, e concentrar teste e correlação em cariólise, binucleadas, picnose e
+          cariorrexe. Registrar a decisão no Bloco 14 como limitação, não escondê-la.</span>
+        </div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o risco 1">
+            <label class="tri cc"><input type="radio" name="tR1" value="concordo" data-n="R1"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tR1" value="discordo" data-n="R1"><span>Discordo</span></label>
+            <span class="estado" data-estado="R1"></span>
+          </div>
+          <textarea class="cmt nota" data-n="R1" data-rotulo="R1 (micronúcleo sem sinal)" rows="1" aria-label="Comentário sobre o risco 1" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivR2">
+        <div class="iv-top">
+          <span class="iv-num">R2</span>
+          <h3>A água tem um achado, e é só um</h3>
+        </div>
+        <p class="iv-body">Dos 13 elementos, só cálcio, magnésio, sódio e potássio têm número em todos
+        os pontos — e nenhum dos quatro tem limite na Portaria, porque são minerais comuns de água.
+        Todo o resto é <code>&lt;LQ</code>. <strong>O único achado regulatório do estudo inteiro é o
+        cromo em Elpídio Paranhos: 0,109 mg/L contra VMP de 0,05</strong>, mais que o dobro.</p>
+        <div class="iv-why debate">
+          <span class="tag">consequência</span>
+          <span>Isso é bom e ruim ao mesmo tempo. Bom: é um achado limpo, defensável e publicável.
+          Ruim: com 6 escolas e um único ponto fora do limite, qualquer teste que use a água como
+          variável contínua tem <strong>n = 6 e uma observação extrema</strong> — a conclusão vira
+          descritiva, não inferencial.</span>
+        </div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Concordância com o risco 2">
+            <label class="tri cc"><input type="radio" name="tR2" value="concordo" data-n="R2"><span>Concordo</span></label>
+            <label class="tri dd"><input type="radio" name="tR2" value="discordo" data-n="R2"><span>Discordo</span></label>
+            <span class="estado" data-estado="R2"></span>
+          </div>
+          <textarea class="cmt nota" data-n="R2" data-rotulo="R2 (água: único achado é o Cr)" rows="1" aria-label="Comentário sobre o risco 2" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">Os três caminhos &middot; escolha um</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">escolha única &middot; comentário nos outros vira ressalva</div>
+    <h2>Que análise a tese passa a fazer</h2>
+    <p class="art-sub">Os três são honestos com os dados; o que muda é onde eles põem o peso da
+    conclusão. Marcar um desmarca os outros. Se quiser um quarto caminho, escreva no comentário de
+    qualquer um deles — o texto vem junto na resposta.</p>
+
+    <div class="cards">
+      <div class="iv" id="ivA">
+        <div class="iv-top">
+          <span class="iv-num">A</span>
+          <h3>Exposição pela escola</h3>
+          <span class="chips"><span class="effort n">ecológico</span></span>
+        </div>
+        <p class="iv-body">Kruskal-Wallis entre as 6 escolas nos marcadores, e Mann-Whitney contrastando
+        <strong>a escola com cromo acima do VMP (n = 11) contra as demais (n = 39)</strong>. Preserva a
+        estrutura do artigo de referência e dá um contraste com significado ambiental de verdade.</p>
+        <div class="iv-why debate">
+          <span class="tag">custo</span>
+          <span>É inferência ecológica com 6 unidades. O n por escola vai de 3 a 11, e a conclusão vale
+          para escolas, não para crianças — a tese precisa dizer isso com todas as letras.</span>
+        </div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Escolha do caminho A">
+            <label class="tri es"><input type="radio" name="caminho" value="A" data-n="A"><span>Escolho A</span></label>
+            <span class="estado" data-estado="A"></span>
+          </div>
+          <textarea class="cmt via" data-n="A" data-rotulo="Caminho A (exposição pela escola)" rows="1" aria-label="Comentário sobre o caminho A" placeholder="Comentário ou ressalva sobre A…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivB">
+        <div class="iv-top">
+          <span class="iv-num">B</span>
+          <h3>Covariáveis individuais dentro do grupo exposto</h3>
+          <span class="chips"><span class="effort n">individual</span></span>
+        </div>
+        <p class="iv-body">Mann-Whitney por variável dicotomizada do questionário — sexo, água tratada,
+        filtro, consumo de peixe — e Spearman contra idade e tempo de residência, com PCA nos
+        marcadores. Fica no nível do indivíduo, com <strong>as 50 crianças em cada teste</strong>.</p>
+        <div class="iv-why debate">
+          <span class="tag">custo</span>
+          <span>Abandona a exposição ambiental como variável. Vira um estudo de correlatos individuais
+          da alteração celular — legítimo, mas é outra pergunta de pesquisa.</span>
+        </div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Escolha do caminho B">
+            <label class="tri es"><input type="radio" name="caminho" value="B" data-n="B"><span>Escolho B</span></label>
+            <span class="estado" data-estado="B"></span>
+          </div>
+          <textarea class="cmt via" data-n="B" data-rotulo="Caminho B (covariáveis individuais)" rows="1" aria-label="Comentário sobre o caminho B" placeholder="Comentário ou ressalva sobre B…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="ivC">
+        <div class="iv-top">
+          <span class="iv-num">C</span>
+          <h3>As duas camadas, separadas explicitamente</h3>
+          <span class="chips"><span class="effort rec">minha recomendação</span></span>
+        </div>
+        <p class="iv-body"><strong>B como análise principal</strong>, porque é onde o n vive e onde a
+        inferência é honesta. <strong>A como camada contextual</strong>, declarada como ecológica no
+        próprio título da tabela. E o <strong>Bloco 12.5 deixa de ser stub</strong>: a planilha traz os
+        valores de referência, então a contextualização regulatória da água vira resultado de verdade,
+        com a razão observado/VMP e o cromo aparecendo como achado.</p>
+        <div class="iv-why">
+          <span class="tag">por quê</span>
+          <span>Entrega os três produtos que a tese precisa — caracterização dos marcadores, correlatos
+          individuais e o achado ambiental do cromo — sem prometer uma comparação exposto &times;
+          controle que os dados não sustentam. O Bloco 14 registra uma frase por decisão, que vira
+          matéria-prima direta do capítulo de Métodos.</span>
+        </div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Escolha do caminho C">
+            <label class="tri es"><input type="radio" name="caminho" value="C" data-n="C"><span>Escolho C</span></label>
+            <span class="estado" data-estado="C"></span>
+          </div>
+          <textarea class="cmt via" data-n="C" data-rotulo="Caminho C (duas camadas)" rows="1" aria-label="Comentário sobre o caminho C" placeholder="Comentário ou ressalva sobre C…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">Perguntas em aberto</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">preciso destas duas antes de escrever o design</div>
+    <h2>O que eu não consigo descobrir sozinho</h2>
+    <p class="art-sub">A primeira é sobre o dado; a segunda é sobre escopo. As duas entram no design em
+    seções que eu escrevo depois que você responder.</p>
+
+    <div class="qs">
+      <div class="q">
+        <div class="q-num">P1</div>
+        <div class="q-txt">
+          <b>O que é a coluna 55, sem cabeçalho?</b>
+          Fica logo depois de <code>FLUOR</code> e tem três valores, constantes por escola: 0,15 em
+          Círculo Operário e Stela Mutti, 0,06 em Nazareth Falcão, 0,05 em Francisco Pinto, Elpídio
+          Paranhos e Edvaldo M. Boaventura. Não está em nenhum documento de <code>planning/</code>.
+          Se for uma medida da água, entra na análise; se for controle de laboratório, sai.
+          <textarea class="cmt resp" data-n="P1" data-rotulo="P1 (coluna 55 sem cabeçalho)" rows="1" aria-label="Resposta à pergunta 1" placeholder="O que é essa coluna…"></textarea>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-num">P2</div>
+        <div class="q-txt">
+          <b>As 383 crianças sem lâmina entram na tese?</b>
+          Elas têm questionário completo. Dá para usá-las numa <strong>caracterização da amostra
+          comparando UFBA &times; escolas nas variáveis socioeconômicas</strong>, aí sim com n = 433 e
+          com o grupo controle participando de alguma coisa. Costuma virar a primeira tabela da tese —
+          e é o único lugar onde o desenho exposto &times; controle ainda funciona. Quer isso no escopo?
+          <textarea class="cmt resp" data-n="P2" data-rotulo="P2 (caracterização da amostra com n=433)" rows="1" aria-label="Resposta à pergunta 2" placeholder="Sim, não, ou com que recorte…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="secao-nota" id="ivS3">
+      <div class="rot">Alguma outra pergunta que eu deveria ter feito?</div>
+      <div class="triage" role="radiogroup" aria-label="Concordância com as perguntas em aberto">
+        <label class="tri cc"><input type="radio" name="tS3" value="concordo" data-n="S3"><span>São as certas</span></label>
+        <label class="tri dd"><input type="radio" name="tS3" value="discordo" data-n="S3"><span>Faltou algo</span></label>
+        <span class="estado" data-estado="S3"></span>
+      </div>
+      <textarea class="cmt nota" data-n="S3" data-rotulo="Seção “Perguntas em aberto”" rows="1" aria-label="Comentário sobre as perguntas" placeholder="O que mais eu precisava saber?"></textarea>
+    </div>
+  </div>
+
+  <div class="divider">Fora de escopo, por decisão ou por falta de dado</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">o que eu não vou construir, e por quê</div>
+    <h2>O que sai do notebook</h2>
+    <p class="art-sub">Registrado aqui para não voltar como surpresa em setembro. Se algum destes
+    deveria continuar, é só dizer no comentário abaixo.</p>
+    <div class="oos">
+      <span>Mann-Whitney exposto &times; controle em biomarcador — sem medida no controle</span>
+      <span>EPTs em saliva — fora por decisão sua</span>
+      <span>As, Cd, Pb, Hg — não foram medidos na água</span>
+      <span>Correlação metal-saliva &times; marcador — não há metal</span>
+      <span>PCA com 16 variáveis — sobraram 7</span>
+      <span>Estratificação por zona de exposição — coluna não existe</span>
+      <span>Bootstrap nos 120 pares do plano — são 21 pares agora</span>
+    </div>
+
+    <div class="secao-nota" id="ivS4">
+      <div class="rot">Concorda em cortar tudo isso?</div>
+      <div class="triage" role="radiogroup" aria-label="Concordância com os cortes">
+        <label class="tri cc"><input type="radio" name="tS4" value="concordo" data-n="S4"><span>Concordo</span></label>
+        <label class="tri dd"><input type="radio" name="tS4" value="discordo" data-n="S4"><span>Discordo</span></label>
+        <span class="estado" data-estado="S4"></span>
+      </div>
+      <textarea class="cmt nota" data-n="S4" data-rotulo="Seção “Fora de escopo”" rows="1" aria-label="Comentário sobre os cortes" placeholder="Algum destes deveria continuar?"></textarea>
+    </div>
+  </div>
+
+  <footer>
+    Companion de uma conversa, não de um arquivo <code>.md</code> — os números
+    <code>F</code>, <code>R</code>, <code>A/B/C</code> e <code>P</code> foram definidos aqui.
+    Dados auditados em <code>planilha_banco_de_dados.xlsx</code> em 17/08/2026; o banco anterior foi
+    lido do histórico do git. Suas marcações ficam salvas neste navegador
+    (<code>localStorage</code>, chave <code>tese_brenda_analise_v1</code>).
+  </footer>
+</div>
+
+<div class="replybar">
+  <div class="replybar-inner">
+    <div class="rb-counts">
+      <span class="rb-pill cc zero" id="rbCc">0 concordo</span>
+      <span class="rb-pill dd zero" id="rbDd">0 discordo</span>
+      <span class="rb-pill es zero" id="rbEs">sem caminho</span>
+      <span class="rb-pill tx zero" id="rbTx">0 comentários</span>
+    </div>
+    <div class="rb-reply" id="rbReply">Nada marcado — sua resposta é montada aqui.</div>
+    <button class="rb-clear" id="rbClear" type="button">limpar</button>
+    <button class="rb-copy" id="rbCopy" type="button" disabled>copiar resposta</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Chave versionada. Se a estrutura dos itens mudar, suba a versao em vez de
+  // tentar restaurar um estado antigo em cima de um formato novo.
+  var KEY = 'tese_brenda_analise_v1';
+
+  var radios = Array.prototype.slice.call(document.querySelectorAll('.tri input[type="radio"]'));
+  var caixas = Array.prototype.slice.call(document.querySelectorAll('textarea.cmt'));
+
+  // Tres tipos de item convivem na pagina:
+  //   texto    -> Concordo/Discordo (T, F1..F5, R1..R2, S1..S4)
+  //   caminho  -> escolha unica entre A, B e C (um so grupo de radio)
+  //   pergunta -> so caixa de texto (P1, P2)
+  var porItem = {};
+  function slot(n) {
+    if (!porItem[n]) porItem[n] = { radios: [], ta: null, tipo: 'texto', rotulo: n };
+    return porItem[n];
+  }
+  radios.forEach(function (r) { slot(r.getAttribute('data-n')).radios.push(r); });
+  caixas.forEach(function (t) {
+    var s = slot(t.getAttribute('data-n'));
+    s.ta = t;
+    if (t.classList.contains('resp')) s.tipo = 'pergunta';
+    else if (t.classList.contains('via')) s.tipo = 'caminho';
+    else s.tipo = 'texto';
+    var rot = t.getAttribute('data-rotulo');
+    if (rot) s.rotulo = rot;
+  });
+
+  // A ordem de leitura da pagina ja e a ordem que queremos na resposta.
+  var textos = [], caminhos = [], perguntas = [];
+  caixas.forEach(function (t) {
+    var n = t.getAttribute('data-n');
+    var tipo = porItem[n].tipo;
+    if (tipo === 'texto') textos.push(n);
+    else if (tipo === 'caminho') caminhos.push(n);
+    else perguntas.push(n);
+  });
+  var totalTextos = textos.length;
+
+  // Guarda o valor marcado por grupo para permitir desmarcar clicando de novo
+  // (radio nativo nao desmarca sozinho).
+  var ultimo = {};
+
+  var rbCc = document.getElementById('rbCc');
+  var rbDd = document.getElementById('rbDd');
+  var rbEs = document.getElementById('rbEs');
+  var rbTx = document.getElementById('rbTx');
+  var rbReply = document.getElementById('rbReply');
+  var rbCopy = document.getElementById('rbCopy');
+  var rbClear = document.getElementById('rbClear');
+  var respostaAtual = '';
+
+  function textoDe(n) {
+    var ta = porItem[n].ta;
+    return ta ? ta.value.trim() : '';
+  }
+
+  function marcadoEm(n) {
+    var v = null;
+    porItem[n].radios.forEach(function (r) { if (r.checked) v = r.value; });
+    return v;
+  }
+
+  // Estado derivado, com as regras de precedencia anunciadas no cabecalho.
+  //   texto:   o botao manda; comentario sozinho vale como 'nota'.
+  //   caminho: marcado + comentario = 'escolhido' (o texto vira ajuste);
+  //            comentario sem marcacao = 'ressalva'.
+  function estadoDe(n) {
+    var marcado = marcadoEm(n);
+    var cmt = textoDe(n);
+    if (porItem[n].tipo === 'caminho') {
+      if (marcado) return 'escolhido';
+      return cmt ? 'ressalva' : null;
+    }
+    if (marcado) return marcado;
+    return cmt ? 'nota' : null;
+  }
+
+  var LEGIVEL = {
+    concordo: 'Concordo',
+    discordo: 'Discordo',
+    nota: 'Comentado',
+    escolhido: 'Escolhido',
+    ressalva: 'Ressalva'
+  };
+
+  function crescer(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = (ta.scrollHeight + 2) + 'px';
+  }
+
+  function pintar(n, estado) {
+    var alvo = document.getElementById('iv' + n);
+    if (alvo) {
+      alvo.classList.remove('st-concordo', 'st-discordo', 'st-nota',
+                            'st-escolhido', 'st-ressalva');
+      if (estado) alvo.classList.add('st-' + estado);
+    }
+    var etiqueta = document.querySelector('[data-estado="' + n + '"]');
+    if (etiqueta) {
+      etiqueta.className = 'estado' + (estado ? ' s-' + estado : '');
+      etiqueta.textContent = estado ? LEGIVEL[estado] : '';
+    }
+    var ta = porItem[n].ta;
+    if (ta) ta.classList.toggle('preenchida', textoDe(n).length > 0);
+  }
+
+  function contaPill(el, num, rotulo) {
+    el.textContent = num + ' ' + rotulo;
+    el.classList.toggle('zero', num === 0);
+  }
+
+  function salvar() {
+    var estado = {};
+    Object.keys(porItem).forEach(function (n) {
+      var marcado = marcadoEm(n);
+      var ta = porItem[n].ta;
+      var bruto = ta ? ta.value : '';
+      if (marcado || bruto.trim()) estado[n] = { s: marcado, c: bruto };
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(estado)); } catch (e) {}
+  }
+
+  function restaurar() {
+    var bruto = null;
+    try { bruto = localStorage.getItem(KEY); } catch (e) { return; }
+    if (!bruto) return;
+    var estado;
+    try { estado = JSON.parse(bruto); } catch (e) { return; }
+    if (!estado || typeof estado !== 'object') return;
+    Object.keys(porItem).forEach(function (n) {
+      var g = estado[n];
+      if (!g) return;
+      porItem[n].radios.forEach(function (r) {
+        if (g.s === r.value) { r.checked = true; ultimo[r.getAttribute('name')] = r.value; }
+      });
+      if (porItem[n].ta && typeof g.c === 'string') porItem[n].ta.value = g.c;
+    });
+  }
+
+  // Achata quebras de linha para manter um item por linha na resposta copiada.
+  function achatar(txt) { return txt.replace(/\s+/g, ' ').trim(); }
+
+  function update() {
+    var concordo = [], discordo = [], notas = [];
+
+    textos.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      if (!e) return;
+      var item = { rotulo: porItem[n].rotulo, c: achatar(textoDe(n)) };
+      if (e === 'concordo') concordo.push(item);
+      else if (e === 'discordo') discordo.push(item);
+      else notas.push(item);
+    });
+
+    var escolhido = null, ressalvas = [];
+    caminhos.forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      if (e === 'escolhido') escolhido = { n: n, rotulo: porItem[n].rotulo, c: achatar(textoDe(n)) };
+      else if (e === 'ressalva') ressalvas.push({ n: n, rotulo: porItem[n].rotulo, c: achatar(textoDe(n)) });
+    });
+
+    var respondidas = [];
+    perguntas.forEach(function (n) {
+      var ta = porItem[n].ta;
+      if (ta) ta.classList.toggle('preenchida', ta.value.trim().length > 0);
+      var c = achatar(textoDe(n));
+      if (c) respondidas.push({ n: n, rotulo: porItem[n].rotulo, c: c });
+    });
+
+    contaPill(rbCc, concordo.length, 'concordo');
+    contaPill(rbDd, discordo.length, 'discordo');
+    rbEs.textContent = escolhido ? 'caminho ' + escolhido.n : 'sem caminho';
+    rbEs.classList.toggle('zero', !escolhido);
+    contaPill(rbTx, notas.length + ressalvas.length + respondidas.length, 'comentários');
+
+    var marcados = concordo.length + discordo.length + notas.length;
+
+    if (!marcados && !escolhido && !ressalvas.length && !respondidas.length) {
+      respostaAtual = '';
+      rbReply.textContent = 'Nada marcado — sua resposta é montada aqui.';
+      rbReply.classList.remove('live');
+      rbCopy.disabled = true;
+      salvar();
+      return;
+    }
+
+    var linhas = ['Resposta ao companion "O que sobra de analisável"',
+                  '(planning/html/ANALISE_POSSIVEL.html):'];
+
+    // Discordancia primeiro: e o que mais muda o que eu faco em seguida.
+    if (discordo.length) {
+      linhas.push('', 'DISCORDO:');
+      discordo.forEach(function (m) {
+        linhas.push('- ' + m.rotulo + (m.c ? ' — ' + m.c : ' — (sem justificativa escrita)'));
+      });
+    }
+    if (escolhido) {
+      linhas.push('', 'CAMINHO ESCOLHIDO: ' + escolhido.n +
+                  (escolhido.c ? ' — com ajustes: ' + escolhido.c : ''));
+    } else {
+      linhas.push('', 'CAMINHO ESCOLHIDO: nenhum ainda.');
+    }
+    if (ressalvas.length) {
+      linhas.push('', 'RESSALVAS NOS OUTROS CAMINHOS:');
+      ressalvas.forEach(function (m) { linhas.push('- ' + m.n + ' — ' + m.c); });
+    }
+    if (respondidas.length) {
+      linhas.push('', 'PERGUNTAS EM ABERTO:');
+      respondidas.forEach(function (m) { linhas.push('- ' + m.rotulo + ': ' + m.c); });
+    }
+    if (concordo.length) {
+      linhas.push('', 'CONCORDO:');
+      concordo.forEach(function (m) {
+        linhas.push('- ' + m.rotulo + (m.c ? ' — ' + m.c : ''));
+      });
+    }
+    if (notas.length) {
+      linhas.push('', 'COMENTADO, SEM CONCORDAR NEM DISCORDAR:');
+      notas.forEach(function (m) { linhas.push('- ' + m.rotulo + ': ' + m.c); });
+    }
+
+    // Separa "eu discordei" de "eu nao cheguei la".
+    var faltam = totalTextos - marcados;
+    if (faltam > 0) {
+      linhas.push('', '(' + faltam + ' afirma' + (faltam > 1 ? 'ções' : 'ção') + ' sem marcar)');
+    }
+    if (!respondidas.length) {
+      linhas.push('(P1 e P2 sem resposta)');
+    } else if (respondidas.length === 1) {
+      linhas.push('(1 das 2 perguntas sem resposta)');
+    }
+
+    respostaAtual = linhas.join('\n');
+
+    // Previa de uma linha: so contagens, porque o texto estouraria a barra.
+    var previa = [];
+    if (escolhido) previa.push('Caminho ' + escolhido.n);
+    if (discordo.length) previa.push(discordo.length + ' discordância' + (discordo.length > 1 ? 's' : ''));
+    if (concordo.length) previa.push(concordo.length + ' concordância' + (concordo.length > 1 ? 's' : ''));
+    if (ressalvas.length) previa.push(ressalvas.length + ' ressalva' + (ressalvas.length > 1 ? 's' : ''));
+    if (respondidas.length) previa.push(respondidas.length + ' pergunta(s) respondida(s)');
+    if (notas.length) previa.push(notas.length + ' comentário(s)');
+    rbReply.textContent = previa.join('  ·  ');
+    rbReply.classList.add('live');
+    rbCopy.disabled = false;
+    salvar();
+  }
+
+  radios.forEach(function (r) {
+    r.addEventListener('click', function () {
+      var grupo = r.getAttribute('name');
+      if (ultimo[grupo] === r.value) {
+        r.checked = false;
+        ultimo[grupo] = null;
+      } else {
+        ultimo[grupo] = r.value;
+      }
+      update();
+    });
+  });
+
+  caixas.forEach(function (ta) {
+    ta.addEventListener('input', function () { crescer(ta); update(); });
+  });
+
+  rbClear.addEventListener('click', function () {
+    radios.forEach(function (r) { r.checked = false; });
+    caixas.forEach(function (ta) { ta.value = ''; crescer(ta); });
+    ultimo = {};
+    update();
+  });
+
+  // Copia para a area de transferencia, com fallback para file://, onde a
+  // navigator.clipboard as vezes e bloqueada.
+  function copiar(texto, btn, rotulo, rotuloOk) {
+    function pronto() {
+      btn.classList.add('copied');
+      btn.textContent = rotuloOk;
+      setTimeout(function () {
+        btn.classList.remove('copied');
+        btn.textContent = rotulo;
+      }, 1600);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      pronto();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(pronto, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  rbCopy.addEventListener('click', function () {
+    if (respostaAtual) copiar(respostaAtual, rbCopy, 'copiar resposta', 'copiado');
+  });
+
+  restaurar();
+  caixas.forEach(crescer);
+  update();
+})();
+</script>
+</body>
+</html>

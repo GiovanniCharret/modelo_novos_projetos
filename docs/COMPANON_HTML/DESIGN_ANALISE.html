@@ -1,0 +1,1141 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design da análise citogenética — revisão do spec</title>
+<style>
+  :root {
+    --ivory:  #FAF9F5;
+    --paper:  #FFFFFF;
+    --slate:  #141413;
+    --clay:   #D97757;
+    --clay-d: #B85C3E;
+    --clay-bg:#FDF6F2;
+    --oat:    #E3DACC;
+    --olive:  #788C5D;
+    --olive-d:#5E7047;
+    --olive-bg:#F1F5EA;
+    --ice:    #5F7A8A;
+    --ice-d:  #4A626F;
+    --ice-bg: #EDF2F5;
+    --g100:   #F0EEE6;
+    --g200:   #E6E3DA;
+    --g300:   #D1CFC5;
+    --g500:   #87867F;
+    --g700:   #3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--ivory);
+    color: var(--slate);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px 170px; }
+
+  header.page-head { padding: 56px 0 8px; position: relative; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--g500); margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow::before { content: ""; width: 24px; height: 1.5px; background: var(--clay); flex: none; }
+  h1 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(32px, 4.6vw, 46px); line-height: 1.08;
+    letter-spacing: -0.018em; margin: 0 0 10px;
+  }
+  .lede { font-size: 16px; color: var(--g700); max-width: 660px; margin: 0 0 22px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+  .lg {
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1.5px solid var(--g300); border-radius: 10px;
+    background: var(--paper); padding: 11px 14px; flex: 1 1 230px; min-width: 0;
+  }
+  .lg-key {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: 999px; padding: 3px 10px; flex: none; color: #fff;
+    margin-top: 1px; white-space: nowrap;
+  }
+  .lg-key.ap { background: var(--olive); }
+  .lg-key.md { background: var(--clay); }
+  .lg-key.aj { background: var(--ice); }
+  .lg-txt { font-size: 12.5px; color: var(--g700); line-height: 1.4; }
+  .legend-nota {
+    font-size: 13px; color: var(--g700); margin: 0 0 30px;
+    padding-left: 14px; border-left: 3px solid var(--oat); max-width: 66ch;
+  }
+
+  .thesis {
+    background: var(--paper); border: 1.5px solid var(--g300);
+    border-radius: 14px; padding: 22px 24px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .thesis.st-aprovado { border-color: var(--olive); background: var(--olive-bg); }
+  .thesis.st-ajuste   { border-color: var(--ice);   background: var(--ice-bg); }
+  .thesis.st-mudar    { border-color: var(--clay);  background: var(--clay-bg); }
+  .thesis-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--clay); margin-bottom: 12px;
+  }
+  .thesis blockquote {
+    margin: 0; font-family: var(--serif); font-style: italic;
+    font-size: 17.5px; line-height: 1.5; color: var(--slate); max-width: 62ch;
+  }
+  .thesis blockquote b { font-style: normal; font-weight: 600; color: var(--clay-d); }
+  .thesis p.after {
+    font-size: 14px; color: var(--g700); margin: 16px 0 0; max-width: 66ch;
+    padding-top: 14px; border-top: 1px dashed var(--g300);
+  }
+
+  .divider {
+    display: flex; align-items: center; gap: 16px; margin: 46px 0 26px;
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--g500); white-space: nowrap;
+  }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--g300); }
+
+  .artifact {
+    background: var(--paper); border: 1.5px solid var(--g300);
+    border-radius: 14px; padding: 30px clamp(16px, 3.5vw, 34px);
+    margin-bottom: 22px;
+  }
+  .artifact h2 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(23px, 3vw, 29px); letter-spacing: -0.015em;
+    line-height: 1.15; margin: 6px 0 6px;
+  }
+  .art-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--g500);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .art-eyebrow::before { content: ""; width: 24px; height: 1.5px; background: var(--clay); flex: none; }
+  .art-sub { font-size: 14.5px; color: var(--g700); max-width: 68ch; margin: 0 0 26px; }
+  code { font-family: var(--mono); font-size: 12.5px; background: var(--g100); border-radius: 5px; padding: 1px 5px; }
+
+  .cards { display: flex; flex-direction: column; gap: 14px; }
+  .iv {
+    border: 1.5px solid var(--g300); border-radius: 12px; background: var(--ivory);
+    padding: 18px 20px 16px; scroll-margin-top: 20px;
+    transition: border-color 140ms, background 140ms;
+  }
+  .iv.st-aprovado { border-color: var(--olive); background: var(--olive-bg); }
+  .iv.st-ajuste   { border-color: var(--ice);   background: var(--ice-bg); }
+  .iv.st-mudar    { border-color: var(--clay);  background: var(--clay-bg); }
+  .iv-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .iv-num { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--clay-d); flex: none; }
+  .iv h3 {
+    font-family: var(--serif); font-weight: 500; font-size: 19px;
+    letter-spacing: -0.01em; margin: 0; flex: 1 1 auto; min-width: 200px;
+  }
+  .chips { display: flex; gap: 8px; align-items: center; flex: none; }
+  .tagx {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.06em; border-radius: 999px; padding: 3px 10px;
+    border: 1.5px solid transparent;
+  }
+  .tagx.novo   { background: #F8E7DE; color: var(--clay-d); border-color: #EBC5B4; }
+  .tagx.premis { background: var(--ice-bg); color: var(--ice-d); border-color: #C7D6DE; }
+  .tagx.mant   { background: #EEF2E6; color: var(--olive); border-color: #C9D4B6; }
+  .iv-body { font-size: 14px; color: var(--g700); margin: 10px 0 0; }
+  .iv-body strong { color: var(--slate); font-weight: 600; }
+  .iv-why { display: flex; gap: 8px; align-items: baseline; margin-top: 10px; font-size: 13.5px; color: var(--g700); }
+  .iv-why .tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--olive); flex: none;
+  }
+  .iv-why.debate .tag { color: var(--clay-d); }
+  .iv-foot { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--g300); }
+
+  .triage { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .tri { position: relative; display: inline-flex; }
+  .tri input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tri span {
+    display: inline-block; font-family: var(--mono);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+    padding: 6px 14px; border-radius: 999px;
+    border: 1.5px solid var(--g300); background: var(--paper);
+    color: var(--g700); cursor: pointer; user-select: none;
+    transition: background 120ms, border-color 120ms, color 120ms;
+  }
+  .tri span:hover { border-color: var(--g500); }
+  .tri input:focus-visible + span { outline: 2px solid var(--slate); outline-offset: 2px; }
+  .tri.ap input:checked + span { background: var(--olive); border-color: var(--olive-d); color: #fff; }
+  .tri.md input:checked + span { background: var(--clay);  border-color: var(--clay-d);  color: #fff; }
+
+  .estado {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.07em; text-transform: uppercase; color: var(--g500);
+    margin-left: auto; padding-left: 10px; text-align: right;
+  }
+  .estado.s-aprovado { color: var(--olive-d); }
+  .estado.s-ajuste   { color: var(--ice-d); }
+  .estado.s-mudar    { color: var(--clay-d); }
+
+  textarea.cmt {
+    display: block; width: 100%; margin-top: 10px;
+    font-family: var(--sans); font-size: 13.5px; line-height: 1.5;
+    color: var(--slate); background: var(--paper);
+    border: 1.5px solid var(--g300); border-radius: 9px;
+    padding: 9px 12px; resize: none; overflow: hidden; min-height: 42px;
+    transition: border-color 120ms, box-shadow 120ms;
+  }
+  textarea.cmt::placeholder { color: var(--g500); }
+  textarea.cmt:focus { outline: none; border-color: var(--clay); box-shadow: 0 0 0 3px rgba(217,119,87,.16); }
+  textarea.cmt.preenchida { border-color: var(--clay); }
+
+  .mock { margin: 14px 0 2px; border: 1.5px solid var(--g300); border-radius: 10px; background: var(--paper); overflow-x: auto; }
+  .mock-cap {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--g500); padding: 10px 14px 0;
+  }
+  table.placar { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 480px; }
+  table.placar th {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--g500);
+    text-align: right; padding: 10px 10px 8px; border-bottom: 1px solid var(--g200);
+  }
+  table.placar th:first-child { text-align: left; padding-left: 14px; }
+  table.placar th:last-child { text-align: left; padding-right: 14px; }
+  table.placar td { padding: 9px 10px; border-bottom: 1px solid var(--g100); text-align: right; }
+  table.placar td:first-child { text-align: left; padding-left: 14px; font-weight: 600; }
+  table.placar td:last-child { text-align: left; padding-right: 14px; }
+  table.placar tr:last-child td { border-bottom: none; }
+  table.placar tr.fecha td:first-child { color: var(--clay-d); }
+  table.placar tr.fecha { background: var(--clay-bg); }
+  table.placar tr.soma { background: var(--g100); }
+  table.placar tr.soma td { font-weight: 700; }
+  .num-zero { color: var(--g300); }
+  .swatch {
+    display: inline-block; width: 13px; height: 13px; border-radius: 3px;
+    border: 1px solid var(--g300); vertical-align: -2px; margin-right: 7px;
+  }
+  .badge {
+    font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: 999px; padding: 2px 9px; white-space: nowrap;
+  }
+  .badge.on  { background: var(--clay); color: #fff; }
+  .badge.off { background: var(--g100); color: var(--g500); border: 1px solid var(--g200); }
+
+  .oos { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 0; }
+  .oos span {
+    font-family: var(--mono); font-size: 11.5px; color: var(--g500);
+    background: var(--g100); border: 1px solid var(--g200);
+    border-radius: 999px; padding: 4px 12px;
+  }
+
+  .replybar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--slate); color: var(--ivory);
+    z-index: 50; box-shadow: 0 -8px 24px rgba(20,20,19,.15);
+  }
+  .replybar-inner { max-width: 980px; margin: 0 auto; padding: 11px 24px; display: flex; align-items: center; gap: 12px; }
+  .rb-counts { display: flex; gap: 5px; flex: none; }
+  .rb-pill {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.03em; padding: 4px 9px; border-radius: 999px;
+    white-space: nowrap; border: 1.5px solid transparent; color: #fff;
+  }
+  .rb-pill.ap { background: var(--olive); border-color: var(--olive-d); }
+  .rb-pill.aj { background: var(--ice);   border-color: var(--ice-d); }
+  .rb-pill.md { background: var(--clay);  border-color: var(--clay-d); }
+  .rb-pill.zero { background: transparent; color: var(--g500); border-color: var(--g700); }
+  .rb-reply {
+    flex: 1; font-family: var(--mono); font-size: 12px; color: var(--g300);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  .rb-reply.live { color: var(--ivory); }
+  button.rb-copy {
+    flex: none; font-family: var(--mono); font-size: 12px; letter-spacing: 0.03em;
+    background: var(--clay); color: #fff; border: 1.5px solid var(--clay-d);
+    border-radius: 8px; padding: 8px 16px; cursor: pointer;
+    transition: background 120ms, opacity 120ms;
+  }
+  button.rb-copy:hover:not(:disabled) { background: var(--clay-d); }
+  button.rb-copy:disabled { opacity: .35; cursor: default; }
+  button.rb-copy.copied { background: var(--olive); border-color: var(--olive); }
+  button.rb-clear {
+    flex: none; font-family: var(--mono); font-size: 11px;
+    background: transparent; color: var(--g500);
+    border: 1.5px solid var(--g700); border-radius: 8px;
+    padding: 8px 12px; cursor: pointer;
+    transition: color 120ms, border-color 120ms;
+  }
+  button.rb-clear:hover { color: var(--ivory); border-color: var(--g500); }
+  @media (max-width: 860px) {
+    .replybar-inner { flex-wrap: wrap; gap: 8px; padding: 10px 16px; }
+    .rb-reply { order: 3; flex-basis: 100%; }
+  }
+
+  footer { margin-top: 46px; font-size: 13px; color: var(--g500); }
+  footer code { font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <div class="eyebrow">tese brenda &middot; revisão do spec &middot; antes do código</div>
+    <h1>Design da análise citogenética</h1>
+    <p class="lede">Companion de
+    <code>docs/superpowers/specs/2026-08-17-analise-citogenetica-design.md</code>.
+    A numeração é a mesma do arquivo — se lá é <b>2.1</b>, aqui é <b>2.1</b> — para debatermos por
+    número. São 25 itens. A barra no rodapé monta a resposta para você copiar e me mandar.</p>
+
+    <div class="legend">
+      <div class="lg">
+        <span class="lg-key ap">Aprovado</span>
+        <span class="lg-txt">Vai para o plano de implementação como está.</span>
+      </div>
+      <div class="lg">
+        <span class="lg-key aj">Ajuste</span>
+        <span class="lg-txt">Escrever na caixa, sem marcar Mudar, já significa <strong>aprovado com ajuste</strong>. O texto vem junto.</span>
+      </div>
+      <div class="lg">
+        <span class="lg-key md">Mudar</span>
+        <span class="lg-txt">Está errado e precisa ser refeito. <strong>Vem no topo da resposta</strong> — é o que me faz voltar atrás.</span>
+      </div>
+    </div>
+
+    <p class="legend-nota"><strong>Precedência:</strong> Mudar vence o comentário — se você marcar
+    Mudar e escrever, o texto vira a justificativa da mudança. Comentário sem botão vale como
+    aprovado com ajuste. Aprovado sozinho é aprovação limpa. O rodapé conta quantos itens ficaram
+    sem marcar, para separar “eu não concordo” de “eu não cheguei lá”.</p>
+
+    <div class="thesis" id="iv0">
+      <div class="thesis-label">§0 — o desenho em uma frase</div>
+      <blockquote>A tese deixa de comparar <i>exposto &times; controle</i> em dano celular — porque o
+      controle não tem desfecho medido — e passa a comparar <b>prevalência de alteração entre as seis
+      escolas</b>, com n = 365, tendo a água como camada ecológica declarada.</blockquote>
+      <p class="after">O que se perde é uma comparação que os dados nunca sustentariam. O que se ganha
+      é um n sete vezes maior: o desfecho existe para todo o grupo exposto, não para 50 pessoas. O
+      contraste exposto &times; controle sobrevive só na caracterização sociodemográfica (§6).</p>
+      <div class="iv-foot">
+        <div class="triage" role="radiogroup" aria-label="Revisão do parágrafo 0">
+          <label class="tri ap"><input type="radio" name="t0" value="aprovado" data-n="0"><span>Aprovado</span></label>
+          <label class="tri md"><input type="radio" name="t0" value="mudar" data-n="0"><span>Mudar</span></label>
+          <span class="estado" data-estado="0"></span>
+        </div>
+        <textarea class="cmt" data-n="0" data-rotulo="§0 — o desenho em uma frase" rows="1" aria-label="Comentário sobre o parágrafo 0" placeholder="Comentário sobre o desenho geral…"></textarea>
+      </div>
+    </div>
+  </header>
+
+  <div class="divider">§1 — Entrada, exclusão e identidade</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">de onde vem o dado e quem fica de fora</div>
+    <h2>O contrato de entrada</h2>
+    <p class="art-sub">A parte mais chata do notebook e a que mais erra em silêncio se estiver
+    frouxa. Aqui é onde as suas 18 exclusões viram regra executável.</p>
+
+    <div class="mock">
+      <div class="mock-cap">§1.2 — o código de cores da planilha, decodificado pela própria legenda</div>
+      <table class="placar">
+        <thead><tr><th>Cor</th><th>Significa</th><th>Efeito</th><th>Linhas</th><th>Onde</th></tr></thead>
+        <tbody>
+          <tr class="fecha"><td><span class="swatch" style="background:#FF00FF"></span>magenta</td><td>faltou questionário</td><td><span class="badge on">exclui</span></td><td>12</td><td>grupo exposto</td></tr>
+          <tr class="fecha"><td><span class="swatch" style="background:#4472C4"></span>tema 4</td><td>sem células</td><td><span class="badge on">exclui</span></td><td>6</td><td>controle UFBA</td></tr>
+          <tr><td><span class="swatch" style="background:#FF0000"></span>vermelho</td><td>sem saliva</td><td><span class="badge off">ignora</span></td><td>3</td><td>saliva fora do escopo</td></tr>
+          <tr><td><span class="swatch" style="background:#FFFF00"></span>amarelo</td><td>tubo sumido</td><td><span class="badge off">ignora</span></td><td>3</td><td>saliva fora do escopo</td></tr>
+          <tr><td><span class="swatch" style="background:#FF9900"></span>laranja</td><td>sem perio</td><td><span class="badge off">ignora</span></td><td>7</td><td>não é desfecho aqui</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mock">
+      <div class="mock-cap">§1.5 — n final</div>
+      <table class="placar">
+        <thead><tr><th>Grupo</th><th>Bruto</th><th>Excluídos</th><th>Final</th></tr></thead>
+        <tbody>
+          <tr><td>Exposto (6 escolas)</td><td>378</td><td>13</td><td>365</td></tr>
+          <tr><td>Controle (UFBA)</td><td>55</td><td>6</td><td>49</td></tr>
+          <tr class="soma"><td>Total</td><td>433</td><td>19</td><td>414</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cards" style="margin-top:18px">
+      <div class="iv" id="iv1.1">
+        <div class="iv-top"><span class="iv-num">1.1</span><h3>Fontes: aba <code>SEM SALIVA</code> e aba <code>AMOSTRA ÁGUA</code></h3></div>
+        <p class="iv-body">A aba <code>COM SALIVA</code> <strong>não é lida</strong>. Com a saliva fora,
+        os estudantes que não salivaram voltam a ser elegíveis, e é a <code>SEM SALIVA</code> que os
+        contém. A leitura usa pandas para valores e openpyxl para cor.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 1.1">
+            <label class="tri ap"><input type="radio" name="t1.1" value="aprovado" data-n="1.1"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t1.1" value="mudar" data-n="1.1"><span>Mudar</span></label>
+            <span class="estado" data-estado="1.1"></span>
+          </div>
+          <textarea class="cmt" data-n="1.1" data-rotulo="1.1 (fontes)" rows="1" aria-label="Comentário sobre 1.1" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv1.2">
+        <div class="iv-top"><span class="iv-num">1.2</span><h3>Exclusão derivada de cor, não de lista fixa</h3>
+          <span class="chips"><span class="tagx novo">decisão nova</span></span></div>
+        <p class="iv-body">As 12 magenta e as 6 de tema 4 saem <strong>lidas do arquivo</strong>. Se
+        vocês excluírem mais alguém, é só pintar — o notebook acompanha sem mexer no código. Verifiquei
+        que o tema 4 marca exatamente as fichas 717, 718, 719, 720, 721 e 725, e mais nenhuma.</p>
+        <div class="iv-why"><span class="tag">armadilha</span>
+          <span>O openpyxl dá erro ao ler cor de tema como RGB. Se esse erro for engolido, as 6
+          exclusões do controle somem sem aviso. O código trata os dois casos explicitamente.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 1.2">
+            <label class="tri ap"><input type="radio" name="t1.2" value="aprovado" data-n="1.2"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t1.2" value="mudar" data-n="1.2"><span>Mudar</span></label>
+            <span class="estado" data-estado="1.2"></span>
+          </div>
+          <textarea class="cmt" data-n="1.2" data-rotulo="1.2 (exclusão por cor)" rows="1" aria-label="Comentário sobre 1.2" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv1.3">
+        <div class="iv-top"><span class="iv-num">1.3</span><h3>Grupo derivado da instituição, com conferência cruzada</h3></div>
+        <p class="iv-body">UFBA vira controle, o resto vira exposto. A coluna <code>EXPOSTO</code> (1/0)
+        <strong>não</strong> é a fonte da verdade, mas é conferida contra a derivação: se discordarem em
+        qualquer linha, o Bloco 5 <strong>falha alto</strong> com a lista das fichas.</p>
+        <div class="iv-why"><span class="tag">por quê</span>
+          <span>Duas fontes concordando é validação. Escolher a mais conveniente quando divergem é
+          exatamente como um erro de digitação atravessa a tese inteira.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 1.3">
+            <label class="tri ap"><input type="radio" name="t1.3" value="aprovado" data-n="1.3"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t1.3" value="mudar" data-n="1.3"><span>Mudar</span></label>
+            <span class="estado" data-estado="1.3"></span>
+          </div>
+          <textarea class="cmt" data-n="1.3" data-rotulo="1.3 (derivação do grupo)" rows="1" aria-label="Comentário sobre 1.3" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv1.4">
+        <div class="iv-top"><span class="iv-num">1.4</span><h3>Dados pessoais descartados no Bloco 6</h3></div>
+        <p class="iv-body">Nome da criança, nome do responsável, telefone, CPF/RG e endereço saem
+        <strong>antes de qualquer cálculo</strong>, e portanto antes de qualquer coisa poder ser
+        exportada. <code>BAIRRO</code> fica, porque é variável de análise.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 1.4">
+            <label class="tri ap"><input type="radio" name="t1.4" value="aprovado" data-n="1.4"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t1.4" value="mudar" data-n="1.4"><span>Mudar</span></label>
+            <span class="estado" data-estado="1.4"></span>
+          </div>
+          <textarea class="cmt" data-n="1.4" data-rotulo="1.4 (descarte de PII)" rows="1" aria-label="Comentário sobre 1.4" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv1.5">
+        <div class="iv-top"><span class="iv-num">1.5</span><h3>n final: 365 expostos, 49 controle</h3></div>
+        <p class="iv-body">365 fica <strong>acima da amostra mínima de 353</strong> calculada na sua
+        metodologia. Nenhum dos 18 excluídos tinha marcador registrado, então a exclusão não remove
+        desfecho de ninguém.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 1.5">
+            <label class="tri ap"><input type="radio" name="t1.5" value="aprovado" data-n="1.5"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t1.5" value="mudar" data-n="1.5"><span>Mudar</span></label>
+            <span class="estado" data-estado="1.5"></span>
+          </div>
+          <textarea class="cmt" data-n="1.5" data-rotulo="1.5 (n final)" rows="1" aria-label="Comentário sobre 1.5" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">§2 — O desfecho</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">a parte que depende de uma premissa sua</div>
+    <h2>Como a alteração celular vira número</h2>
+    <p class="art-sub">Esta seção carrega a única premissa do design que não é fato medido. Ela está
+    isolada de propósito, em duas constantes, para poder ser revertida sem refazer o notebook.</p>
+
+    <div class="cards">
+      <div class="iv" id="iv2.1">
+        <div class="iv-top"><span class="iv-num">2.1</span><h3><code>SEMANTICA_BRANCO = "zero"</code></h3>
+          <span class="chips"><span class="tagx premis">premissa · decidida</span></span></div>
+        <p class="iv-body">Célula em branco significa contagem completa que deu zero: as 2.000 células
+        foram classificadas e nenhuma era alterada. O desfecho existe para os <strong>365</strong>.
+        <strong>Confirmado duas vezes</strong>, inclusive depois de ver a evidência contrária. O valor
+        alternativo <code>"triagem"</code> continua disponível e troca o desfecho para binário —
+        numa linha, sem tocar em mais nada.</p>
+        <div class="iv-why debate"><span class="tag">o que isso afirma</span>
+          <span>Que 316 crianças tiveram 2.000 células contadas <strong>sem uma única cariólise</strong>,
+          enquanto nas 49 com alteração a cariólise é em média 733 por 2.000. Vai registrada no Bloco 14
+          como premissa, não como achado.</span></div>
+        <div class="iv-why debate"><span class="tag">sem explicação</span>
+          <span>As 50 lâminas coincidem, marcador a marcador, com a coorte publicada por Cury et al.
+          (n = 49). A hipótese de que o artigo excluiu a ficha 224 <strong>foi testada e refutada</strong>:
+          remover a 224 afasta os números do artigo (distância 55,8 contra 17,4 mantendo as 50), porque a
+          224 tem os menores valores do conjunto e removê-la <em>eleva</em> as médias. Nenhuma remoção
+          única reproduz a Tabela I. Fica declarado em §8.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 2.1">
+            <label class="tri ap"><input type="radio" name="t2.1" value="aprovado" data-n="2.1"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t2.1" value="mudar" data-n="2.1"><span>Mudar</span></label>
+            <span class="estado" data-estado="2.1"></span>
+          </div>
+          <textarea class="cmt" data-n="2.1" data-rotulo="2.1 (semântica do branco)" rows="1" aria-label="Comentário sobre 2.1" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv2.2">
+        <div class="iv-top"><span class="iv-num">2.2</span><h3>Frequência por 1.000 células, com <code>NORMAL = 2000</code> nas sem alteração</h3>
+          <span class="chips"><span class="tagx premis">premissa</span></span></div>
+        <p class="iv-body">A <strong>ficha 224 sai</strong> — 423 células pontuadas, muito abaixo do
+        mínimo de 2.000 do protocolo. É exclusão de qualidade de leitura, não a hipótese sobre Cury.
+        As demais entram com a contagem que têm, acima ou abaixo de 2.000, e tudo vira frequência por
+        1.000 células.</p>
+        <div class="iv-why debate"><span class="tag">forçado pela conta</span>
+          <span>Para as 316 sem alteração eu preciso de um denominador. Se 2.000 células foram contadas e
+          nenhuma era alterada, então as 2.000 eram normais. Sem isso o denominador é zero e a divisão
+          não existe. Vai como constante nomeada e nota no Bloco 14.</span></div>
+        <div class="iv-why debate"><span class="tag">fica aberto</span>
+          <span>Excluída a 224, restam <strong>6 lâminas abaixo de 2.000</strong>: fichas 520 (1.015),
+          383 (1.508), 501 (1.732), 449 (1.905), 641 (1.923) e 443 (1.995). A <strong>520 tem metade do
+          protocolo</strong> — se o critério que excluiu a 224 for “muito abaixo de 2.000”, ele alcança a
+          520 também. O notebook não exclui nenhuma por conta própria; exporta a lista.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 2.2">
+            <label class="tri ap"><input type="radio" name="t2.2" value="aprovado" data-n="2.2"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t2.2" value="mudar" data-n="2.2"><span>Mudar</span></label>
+            <span class="estado" data-estado="2.2"></span>
+          </div>
+          <textarea class="cmt" data-n="2.2" data-rotulo="2.2 (normalização e NORMAL=2000)" rows="1" aria-label="Comentário sobre 2.2" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv2.3">
+        <div class="iv-top"><span class="iv-num">2.3</span><h3>Duas tabelas canônicas, e só elas</h3></div>
+        <p class="iv-body"><code>desfecho_participante</code> (uma linha por criança: grupo, escola,
+        teve alteração, as 7 frequências, covariáveis) e <code>exposicao_escola</code> (uma linha por
+        escola: elementos da água, FLUOR, razão observado/VMP). Todo o resto do notebook consome só
+        essas duas — é o que faz a troca de 2.1 custar uma linha.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 2.3">
+            <label class="tri ap"><input type="radio" name="t2.3" value="aprovado" data-n="2.3"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t2.3" value="mudar" data-n="2.3"><span>Mudar</span></label>
+            <span class="estado" data-estado="2.3"></span>
+          </div>
+          <textarea class="cmt" data-n="2.3" data-rotulo="2.3 (tabelas canônicas)" rows="1" aria-label="Comentário sobre 2.3" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">§3 — Análise principal, no indivíduo</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">n = 365 &middot; blocos 9, 9.5 e 10</div>
+    <h2>Onde está o resultado da tese</h2>
+    <p class="art-sub">O controle não entra aqui, porque não tem desfecho. Estes cinco itens são o
+    miolo do capítulo de Resultados.</p>
+
+    <div class="mock">
+      <div class="mock-cap">§3.1 — prevalência de alteração por escola, o resultado principal</div>
+      <table class="placar">
+        <thead><tr><th>Escola</th><th>n</th><th>Com alteração</th><th>Prevalência</th></tr></thead>
+        <tbody>
+          <tr class="fecha"><td>Stela Mutti</td><td>22</td><td>6</td><td>27,3%</td></tr>
+          <tr><td>Edvaldo M. Boaventura</td><td>47</td><td>9</td><td>19,1%</td></tr>
+          <tr><td>Elpídio Paranhos <span class="badge on">Cr acima do VMP</span></td><td>63</td><td>11</td><td>17,5%</td></tr>
+          <tr><td>Nazareth Falcão</td><td>61</td><td>9</td><td>14,8%</td></tr>
+          <tr><td>Francisco Pinto</td><td>82</td><td>11</td><td>13,4%</td></tr>
+          <tr class="fecha"><td>Círculo Operário</td><td>90</td><td>3</td><td>3,3%</td></tr>
+          <tr class="soma"><td>Exposto</td><td>365</td><td>49</td><td>13,4%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cards" style="margin-top:18px">
+      <div class="iv" id="iv3.1">
+        <div class="iv-top"><span class="iv-num">3.1</span><h3>Prevalência por escola, com IC de Wilson e Fisher</h3>
+          <span class="chips"><span class="tagx mant">medida principal</span></span></div>
+        <p class="iv-body">É a medida principal porque é a mais interpretável e a <strong>menos sensível
+        à premissa 2.1</strong> — “teve ou não teve alteração” não depende de como se conta o branco.
+        Teste exato de Fisher na tabela 6 × 2.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 3.1">
+            <label class="tri ap"><input type="radio" name="t3.1" value="aprovado" data-n="3.1"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t3.1" value="mudar" data-n="3.1"><span>Mudar</span></label>
+            <span class="estado" data-estado="3.1"></span>
+          </div>
+          <textarea class="cmt" data-n="3.1" data-rotulo="3.1 (prevalência por escola)" rows="1" aria-label="Comentário sobre 3.1" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.2">
+        <div class="iv-top"><span class="iv-num">3.2</span><h3>Frequência por 1.000 células como confirmação</h3></div>
+        <p class="iv-body">Kruskal-Wallis entre as 6 escolas, por marcador. Com cerca de <strong>86% de
+        zeros</strong>, mede quase a mesma coisa que 3.1.</p>
+        <div class="iv-why"><span class="tag">regra</span>
+          <span>A apresentação lidera pela prevalência e traz a frequência como confirmação. Nunca o
+          contrário, e nunca só o que der <em>p</em> menor.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 3.2">
+            <label class="tri ap"><input type="radio" name="t3.2" value="aprovado" data-n="3.2"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t3.2" value="mudar" data-n="3.2"><span>Mudar</span></label>
+            <span class="estado" data-estado="3.2"></span>
+          </div>
+          <textarea class="cmt" data-n="3.2" data-rotulo="3.2 (frequência por 1.000 células)" rows="1" aria-label="Comentário sobre 3.2" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.3">
+        <div class="iv-top"><span class="iv-num">3.3</span><h3>Covariáveis do questionário</h3></div>
+        <p class="iv-body">Sexo, água da EMBASA em casa, tem filtro, consumo de peixe (nenhum × algum):
+        Fisher para prevalência, Mann-Whitney para frequência. Idade e tempo de residência entram por
+        Spearman.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 3.3">
+            <label class="tri ap"><input type="radio" name="t3.3" value="aprovado" data-n="3.3"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t3.3" value="mudar" data-n="3.3"><span>Mudar</span></label>
+            <span class="estado" data-estado="3.3"></span>
+          </div>
+          <textarea class="cmt" data-n="3.3" data-rotulo="3.3 (covariáveis do questionário)" rows="1" aria-label="Comentário sobre 3.3" placeholder="Faltou alguma covariável que você quer testar?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.4">
+        <div class="iv-top"><span class="iv-num">3.4</span><h3>Benjamini-Hochberg por família de testes</h3></div>
+        <p class="iv-body">Uma família para escolas, outra para covariáveis, corrigidas separadamente.
+        <code>ALPHA = 0.05</code>. A tabela mostra <em>p</em> bruto e <em>p</em> ajustado lado a lado.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 3.4">
+            <label class="tri ap"><input type="radio" name="t3.4" value="aprovado" data-n="3.4"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t3.4" value="mudar" data-n="3.4"><span>Mudar</span></label>
+            <span class="estado" data-estado="3.4"></span>
+          </div>
+          <textarea class="cmt" data-n="3.4" data-rotulo="3.4 (correção BH)" rows="1" aria-label="Comentário sobre 3.4" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv3.5">
+        <div class="iv-top"><span class="iv-num">3.5</span><h3>Micronúcleo e broto: descritivos, sem teste</h3>
+          <span class="chips"><span class="tagx novo">contraria o plano antigo</span></span></div>
+        <p class="iv-body">Micronúcleo soma cerca de <strong>5 ocorrências em ~732.000 células</strong> no
+        estudo inteiro. Reportado com contagem bruta, número de crianças afetadas e proporção de zeros —
+        <strong>sem teste de hipótese e sem correlação</strong>.</p>
+        <div class="iv-why debate"><span class="tag">para a tese</span>
+          <span>Isto precisa constar do texto: o marcador que dá nome ao artigo de referência é o que
+          menos informa neste conjunto. É uma limitação a declarar, não a esconder.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 3.5">
+            <label class="tri ap"><input type="radio" name="t3.5" value="aprovado" data-n="3.5"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t3.5" value="mudar" data-n="3.5"><span>Mudar</span></label>
+            <span class="estado" data-estado="3.5"></span>
+          </div>
+          <textarea class="cmt" data-n="3.5" data-rotulo="3.5 (micronúcleo descritivo)" rows="1" aria-label="Comentário sobre 3.5" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">§4 — Camada ecológica, no nível da escola</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">n = 6 &middot; blocos 11 e 12</div>
+    <h2>A água, com o rótulo certo</h2>
+    <p class="art-sub">Declarada como ecológica no título de cada tabela e figura. Nenhuma afirmação
+    causal sai daqui.</p>
+
+    <div class="cards">
+      <div class="iv" id="iv4.1">
+        <div class="iv-top"><span class="iv-num">4.1</span><h3>Junção 1:1 por instituição</h3></div>
+        <p class="iv-body">E1 Círculo Operário · E2 Stela Mutti · E3 Francisco Pinto · E4 Edvaldo M.
+        Boaventura · E5 Elpídio Paranhos · E6 Nazareth Falcão · B1 EMBASA (Salvador, referência do
+        controle). O mapa fica explícito no Bloco 2.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 4.1">
+            <label class="tri ap"><input type="radio" name="t4.1" value="aprovado" data-n="4.1"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t4.1" value="mudar" data-n="4.1"><span>Mudar</span></label>
+            <span class="estado" data-estado="4.1"></span>
+          </div>
+          <textarea class="cmt" data-n="4.1" data-rotulo="4.1 (junção água ↔ escola)" rows="1" aria-label="Comentário sobre 4.1" placeholder="O mapa dos pontos está certo?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv4.2">
+        <div class="iv-top"><span class="iv-num">4.2</span><h3>Correlação com n = 6, sem <em>p</em> em destaque</h3></div>
+        <p class="iv-body">Spearman entre prevalência da escola e cada elemento, e entre prevalência e
+        FLUOR. Reportado com coeficiente e n, <strong>sem <em>p</em>-valor destacado e sem correção</strong>.</p>
+        <div class="iv-why debate"><span class="tag">por quê</span>
+          <span>Anunciar significância com 6 unidades seria enganoso. O número entra como descrição de
+          padrão, não como evidência.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 4.2">
+            <label class="tri ap"><input type="radio" name="t4.2" value="aprovado" data-n="4.2"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t4.2" value="mudar" data-n="4.2"><span>Mudar</span></label>
+            <span class="estado" data-estado="4.2"></span>
+          </div>
+          <textarea class="cmt" data-n="4.2" data-rotulo="4.2 (correlação ecológica n=6)" rows="1" aria-label="Comentário sobre 4.2" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv4.3">
+        <div class="iv-top"><span class="iv-num">4.3</span><h3>Spearman e PCA dentro das 50</h3></div>
+        <p class="iv-body">Sobre os 5 marcadores com variação (binucleadas, cariorrexe, cariólise,
+        picnose, normais): matriz com clustering hierárquico, IC bootstrap de 95% nos pares mais fortes,
+        PCA com scree e biplot. São <strong>10 pares únicos</strong>, não os 120 do PLAN antigo.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 4.3">
+            <label class="tri ap"><input type="radio" name="t4.3" value="aprovado" data-n="4.3"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t4.3" value="mudar" data-n="4.3"><span>Mudar</span></label>
+            <span class="estado" data-estado="4.3"></span>
+          </div>
+          <textarea class="cmt" data-n="4.3" data-rotulo="4.3 (Spearman e PCA nas 50)" rows="1" aria-label="Comentário sobre 4.3" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">§5 e §6 — Regulatório e caracterização</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">o achado ambiental e a primeira tabela da tese</div>
+    <h2>Os dois produtos que faltavam</h2>
+    <p class="art-sub">O Bloco 12.5 deixa de ser stub porque os valores de referência estão na própria
+    aba da água. E o §6 é o único lugar onde o desenho exposto × controle ainda funciona.</p>
+
+    <div class="cards">
+      <div class="iv" id="iv5">
+        <div class="iv-top"><span class="iv-num">5</span><h3>Razão observado/VMP e o cromo</h3>
+          <span class="chips"><span class="tagx novo">deixa de ser stub</span></span></div>
+        <p class="iv-body"><strong>Cromo em Elpídio Paranhos: 0,109 mg/L contra VMP de 0,05 — 2,18 vezes
+        o limite</strong> da Portaria GM/MS nº 888/2021. É o único elemento acima do limite em todo o
+        estudo. <code>&lt;LQ</code> é marcado como tal e <strong>não entra como zero</strong>.</p>
+        <div class="iv-why debate"><span class="tag">contraponto obrigatório</span>
+          <span>Elpídio Paranhos tem 17,5% de prevalência, a terceira entre seis; a mais alta é Stela
+          Mutti, com 27,3% e nenhum elemento acima do limite. <strong>A água não explica sozinha o
+          gradiente</strong> — e dizer isso vale mais do que sugerir uma associação que os dados não
+          mostram.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 5">
+            <label class="tri ap"><input type="radio" name="t5" value="aprovado" data-n="5"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t5" value="mudar" data-n="5"><span>Mudar</span></label>
+            <span class="estado" data-estado="5"></span>
+          </div>
+          <textarea class="cmt" data-n="5" data-rotulo="5 (regulatório e o cromo)" rows="1" aria-label="Comentário sobre 5" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv6">
+        <div class="iv-top"><span class="iv-num">6</span><h3>Caracterização da amostra — 365 × 49</h3>
+          <span class="chips"><span class="tagx novo">bloco novo</span></span></div>
+        <p class="iv-body">Sexo, idade, cor da pele, renda, escolaridade dos responsáveis, origem da água
+        em casa, consumo de peixe, comparados entre exposto e controle, <strong>n = 414</strong>. Fisher
+        para categóricas, Mann-Whitney para contínuas.</p>
+        <div class="iv-why"><span class="tag">serve a dois fins</span>
+          <span>É a primeira tabela do capítulo de Resultados, e mostra se os grupos são comparáveis
+          naquilo que se pôde medir nos dois.</span></div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 6">
+            <label class="tri ap"><input type="radio" name="t6" value="aprovado" data-n="6"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t6" value="mudar" data-n="6"><span>Mudar</span></label>
+            <span class="estado" data-estado="6"></span>
+          </div>
+          <textarea class="cmt" data-n="6" data-rotulo="6 (caracterização da amostra)" rows="1" aria-label="Comentário sobre 6" placeholder="Faltou alguma variável nessa tabela?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">§7 — Estrutura, saídas e manutenção</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">o que muda no notebook e nos documentos</div>
+    <h2>Manutenção</h2>
+    <p class="art-sub">A espinha de blocos do <code>CLAUDE.md</code> é preservada; o que muda é o
+    conteúdo de alguns e a entrada de dois novos.</p>
+
+    <div class="cards">
+      <div class="iv" id="iv7.1">
+        <div class="iv-top"><span class="iv-num">7.1</span><h3>Mapa dos blocos, com 9.5 novo</h3></div>
+        <p class="iv-body">Blocos 0 a 8 reescritos para a planilha nova; <strong>9.5 é novo</strong>
+        (caracterização); <strong>10 deixa de ser só Mann-Whitney</strong> e passa a Fisher +
+        Kruskal-Wallis + Mann-Whitney; <strong>12.5 deixa de ser stub</strong>; 14 reescrito com as
+        premissas de 2.1 e 2.2.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 7.1">
+            <label class="tri ap"><input type="radio" name="t7.1" value="aprovado" data-n="7.1"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t7.1" value="mudar" data-n="7.1"><span>Mudar</span></label>
+            <span class="estado" data-estado="7.1"></span>
+          </div>
+          <textarea class="cmt" data-n="7.1" data-rotulo="7.1 (mapa dos blocos)" rows="1" aria-label="Comentário sobre 7.1" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv7.2">
+        <div class="iv-top"><span class="iv-num">7.2</span><h3>12 tabelas e 5 figuras, sem identificação</h3></div>
+        <p class="iv-body">Tudo em <code>outputs/banco_atual/</code>, ignorado pelo git. Nenhum artefato
+        contém coluna de identificação — é consequência de 1.4, e é verificável.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 7.2">
+            <label class="tri ap"><input type="radio" name="t7.2" value="aprovado" data-n="7.2"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t7.2" value="mudar" data-n="7.2"><span>Mudar</span></label>
+            <span class="estado" data-estado="7.2"></span>
+          </div>
+          <textarea class="cmt" data-n="7.2" data-rotulo="7.2 (artefatos exportados)" rows="1" aria-label="Comentário sobre 7.2" placeholder="Falta alguma tabela que você quer exportada?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv7.3">
+        <div class="iv-top"><span class="iv-num">7.3</span><h3>Documentos a atualizar</h3></div>
+        <p class="iv-body">Eu atualizo <code>RESEARCH_INVARIANTS.md</code>, <code>PLAN.md</code> e
+        <code>CLAUDE.md</code>, e <strong>excluo</strong> <code>notebook/analise_pesquisa.ipynb</code>.
+        <code>metodologia.md</code> §4.4 e §4.5 ficam <strong>com você</strong> — descrevem exposição por
+        saliva e quantificação de Sb/As/Cd/Pb/Ni/Hg na água, e eu não mexo no texto da sua tese.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 7.3">
+            <label class="tri ap"><input type="radio" name="t7.3" value="aprovado" data-n="7.3"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t7.3" value="mudar" data-n="7.3"><span>Mudar</span></label>
+            <span class="estado" data-estado="7.3"></span>
+          </div>
+          <textarea class="cmt" data-n="7.3" data-rotulo="7.3 (documentos a atualizar)" rows="1" aria-label="Comentário sobre 7.3" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv7.4">
+        <div class="iv-top"><span class="iv-num">7.4</span><h3>Fora de escopo</h3></div>
+        <div class="oos" style="margin-top:10px">
+          <span>Mann-Whitney exposto × controle em biomarcador</span>
+          <span>EPTs em saliva</span>
+          <span>As, Cd, Pb, Hg</span>
+          <span>PCA com 16 variáveis</span>
+          <span>zona de exposição</span>
+          <span>modelagem confirmatória</span>
+          <span>concordância inter-observador</span>
+        </div>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 7.4">
+            <label class="tri ap"><input type="radio" name="t7.4" value="aprovado" data-n="7.4"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t7.4" value="mudar" data-n="7.4"><span>Mudar</span></label>
+            <span class="estado" data-estado="7.4"></span>
+          </div>
+          <textarea class="cmt" data-n="7.4" data-rotulo="7.4 (fora de escopo)" rows="1" aria-label="Comentário sobre 7.4" placeholder="Algum destes deveria voltar?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">§8 e §9 — Limitações e pronto</div>
+
+  <div class="artifact">
+    <div class="art-eyebrow">o que a tese precisa declarar, e como saberemos que acabou</div>
+    <h2>Honestidade e critério de parada</h2>
+
+    <div class="cards">
+      <div class="iv" id="iv8">
+        <div class="iv-top"><span class="iv-num">8</span><h3>Seis limitações a declarar no texto</h3></div>
+        <p class="iv-body">Ausência de controle com desfecho; a premissa do branco (2.1); inferência
+        ecológica com n = 6; <strong>efeito de leitor ou de lote não descartável</strong> — 3,3% contra
+        27,3% é diferença de oito vezes e a leitura não foi cega nem replicada; micronúcleo sem poder;
+        e n desigual entre escolas, de 23 a 90.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 8">
+            <label class="tri ap"><input type="radio" name="t8" value="aprovado" data-n="8"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t8" value="mudar" data-n="8"><span>Mudar</span></label>
+            <span class="estado" data-estado="8"></span>
+          </div>
+          <textarea class="cmt" data-n="8" data-rotulo="8 (limitações)" rows="1" aria-label="Comentário sobre 8" placeholder="Alguma limitação a mais, ou alguma que você discorda?"></textarea>
+        </div>
+      </div>
+
+      <div class="iv" id="iv9">
+        <div class="iv-top"><span class="iv-num">9</span><h3>Definição de pronto, em 6 checagens</h3></div>
+        <p class="iv-body">Roda do topo ao fim; o Bloco 5 falha alto se o grupo divergir da coluna
+        <code>EXPOSTO</code> ou se as exclusões saírem de 12 e 6; os n batem em 365/49/49; os artefatos
+        aparecem sem identificação; trocar <code>SEMANTICA_BRANCO</code> não quebra nada; e cada premissa
+        tem frase correspondente no Bloco 14.</p>
+        <div class="iv-foot">
+          <div class="triage" role="radiogroup" aria-label="Revisão do item 9">
+            <label class="tri ap"><input type="radio" name="t9" value="aprovado" data-n="9"><span>Aprovado</span></label>
+            <label class="tri md"><input type="radio" name="t9" value="mudar" data-n="9"><span>Mudar</span></label>
+            <span class="estado" data-estado="9"></span>
+          </div>
+          <textarea class="cmt" data-n="9" data-rotulo="9 (definição de pronto)" rows="1" aria-label="Comentário sobre 9" placeholder="Comentário…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Companion de <code>docs/superpowers/specs/2026-08-17-analise-citogenetica-design.md</code> —
+    numeração espelhada do arquivo, conteúdo resumido. Onde houver divergência, vale o markdown.
+    Marcações salvas neste navegador (<code>localStorage</code>, chave
+    <code>tese_brenda_design_v1</code>).
+  </footer>
+</div>
+
+<div class="replybar">
+  <div class="replybar-inner">
+    <div class="rb-counts">
+      <span class="rb-pill ap zero" id="rbAp">0 aprov.</span>
+      <span class="rb-pill aj zero" id="rbAj">0 ajuste</span>
+      <span class="rb-pill md zero" id="rbMd">0 mudar</span>
+    </div>
+    <div class="rb-reply" id="rbReply">Nada marcado — sua resposta é montada aqui.</div>
+    <button class="rb-clear" id="rbClear" type="button">limpar</button>
+    <button class="rb-copy" id="rbCopy" type="button" disabled>copiar resposta</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Chave versionada: se a numeracao do spec mudar, suba a versao em vez de
+  // restaurar marcacoes antigas em cima de itens que nao existem mais.
+  var KEY = 'tese_brenda_design_v1';
+
+  var radios = Array.prototype.slice.call(document.querySelectorAll('.tri input[type="radio"]'));
+  var caixas = Array.prototype.slice.call(document.querySelectorAll('textarea.cmt'));
+
+  var porItem = {};
+  function slot(n) {
+    if (!porItem[n]) porItem[n] = { radios: [], ta: null, rotulo: n };
+    return porItem[n];
+  }
+  radios.forEach(function (r) { slot(r.getAttribute('data-n')).radios.push(r); });
+  caixas.forEach(function (t) {
+    var s = slot(t.getAttribute('data-n'));
+    s.ta = t;
+    var rot = t.getAttribute('data-rotulo');
+    if (rot) s.rotulo = rot;
+  });
+
+  var itens = caixas.map(function (t) { return t.getAttribute('data-n'); });
+  var totalItens = itens.length;
+
+  var ultimo = {};
+
+  var rbAp = document.getElementById('rbAp');
+  var rbAj = document.getElementById('rbAj');
+  var rbMd = document.getElementById('rbMd');
+  var rbReply = document.getElementById('rbReply');
+  var rbCopy = document.getElementById('rbCopy');
+  var rbClear = document.getElementById('rbClear');
+  var respostaAtual = '';
+
+  // Ordena "1.10" depois de "1.9", e o item "5" antes de "7.1".
+  function porNumero(a, b) {
+    var pa = String(a).split('.').map(Number);
+    var pb = String(b).split('.').map(Number);
+    return (pa[0] - pb[0]) || ((pa[1] || 0) - (pb[1] || 0));
+  }
+
+  function textoDe(n) {
+    var ta = porItem[n].ta;
+    return ta ? ta.value.trim() : '';
+  }
+
+  function marcadoEm(n) {
+    var v = null;
+    porItem[n].radios.forEach(function (r) { if (r.checked) v = r.value; });
+    return v;
+  }
+
+  // Estado derivado, com a precedencia anunciada no cabecalho:
+  // Mudar vence sempre; comentario sem botao vira 'ajuste'; Aprovado limpo
+  // com comentario tambem conta como ajuste, porque o texto pede algo.
+  function estadoDe(n) {
+    var marcado = marcadoEm(n);
+    var cmt = textoDe(n);
+    if (marcado === 'mudar') return 'mudar';
+    if (cmt) return 'ajuste';
+    if (marcado === 'aprovado') return 'aprovado';
+    return null;
+  }
+
+  var LEGIVEL = { aprovado: 'Aprovado', ajuste: 'Aprovado c/ ajuste', mudar: 'Mudar' };
+
+  function crescer(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = (ta.scrollHeight + 2) + 'px';
+  }
+
+  function pintar(n, estado) {
+    var alvo = document.getElementById('iv' + n);
+    if (alvo) {
+      alvo.classList.remove('st-aprovado', 'st-ajuste', 'st-mudar');
+      if (estado) alvo.classList.add('st-' + estado);
+    }
+    var etiqueta = document.querySelector('[data-estado="' + n + '"]');
+    if (etiqueta) {
+      etiqueta.className = 'estado' + (estado ? ' s-' + estado : '');
+      etiqueta.textContent = estado ? LEGIVEL[estado] : '';
+    }
+    var ta = porItem[n].ta;
+    if (ta) ta.classList.toggle('preenchida', textoDe(n).length > 0);
+  }
+
+  function contaPill(el, num, rotulo) {
+    el.textContent = num + ' ' + rotulo;
+    el.classList.toggle('zero', num === 0);
+  }
+
+  function salvar() {
+    var estado = {};
+    itens.forEach(function (n) {
+      var marcado = marcadoEm(n);
+      var ta = porItem[n].ta;
+      var bruto = ta ? ta.value : '';
+      if (marcado || bruto.trim()) estado[n] = { s: marcado, c: bruto };
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(estado)); } catch (e) {}
+  }
+
+  function restaurar() {
+    var bruto = null;
+    try { bruto = localStorage.getItem(KEY); } catch (e) { return; }
+    if (!bruto) return;
+    var estado;
+    try { estado = JSON.parse(bruto); } catch (e) { return; }
+    if (!estado || typeof estado !== 'object') return;
+    itens.forEach(function (n) {
+      var g = estado[n];
+      if (!g) return;
+      porItem[n].radios.forEach(function (r) {
+        if (g.s === r.value) { r.checked = true; ultimo[r.getAttribute('name')] = r.value; }
+      });
+      if (porItem[n].ta && typeof g.c === 'string') porItem[n].ta.value = g.c;
+    });
+  }
+
+  function achatar(txt) { return txt.replace(/\s+/g, ' ').trim(); }
+
+  function update() {
+    var aprovados = [], ajustes = [], mudancas = [];
+
+    itens.slice().sort(porNumero).forEach(function (n) {
+      var e = estadoDe(n);
+      pintar(n, e);
+      if (e === 'aprovado') aprovados.push(n);
+      else if (e === 'ajuste') ajustes.push({ n: n, rotulo: porItem[n].rotulo, c: achatar(textoDe(n)) });
+      else if (e === 'mudar') mudancas.push({ n: n, rotulo: porItem[n].rotulo, c: achatar(textoDe(n)) });
+    });
+
+    contaPill(rbAp, aprovados.length, 'aprov.');
+    contaPill(rbAj, ajustes.length, 'ajuste');
+    contaPill(rbMd, mudancas.length, 'mudar');
+
+    var marcados = aprovados.length + ajustes.length + mudancas.length;
+
+    if (marcados === 0) {
+      respostaAtual = '';
+      rbReply.textContent = 'Nada marcado — sua resposta é montada aqui.';
+      rbReply.classList.remove('live');
+      rbCopy.disabled = true;
+      salvar();
+      return;
+    }
+
+    var linhas = ['Revisão do spec',
+                  'docs/superpowers/specs/2026-08-17-analise-citogenetica-design.md:'];
+
+    // Mudar primeiro: e o que me faz voltar atras antes de escrever o plano.
+    if (mudancas.length) {
+      linhas.push('', 'MUDAR:');
+      mudancas.forEach(function (m) {
+        linhas.push('- ' + m.rotulo + (m.c ? ' — ' + m.c : ' — (sem justificativa escrita)'));
+      });
+    }
+    if (ajustes.length) {
+      linhas.push('', 'APROVADO COM AJUSTE:');
+      ajustes.forEach(function (m) { linhas.push('- ' + m.rotulo + ' — ' + m.c); });
+    }
+    if (aprovados.length) {
+      linhas.push('', 'APROVADO: ' + aprovados.join(', '));
+    }
+
+    var faltam = totalItens - marcados;
+    if (faltam > 0) {
+      linhas.push('', '(' + faltam + (faltam > 1 ? ' itens' : ' item') + ' sem marcar, de ' + totalItens + ')');
+    } else {
+      linhas.push('', '(todos os ' + totalItens + ' itens revisados)');
+    }
+
+    respostaAtual = linhas.join('\n');
+
+    var previa = [];
+    if (mudancas.length) previa.push('Mudar ' + mudancas.map(function (m) { return m.n; }).join(', '));
+    if (ajustes.length) previa.push('Ajuste ' + ajustes.map(function (m) { return m.n; }).join(', '));
+    if (aprovados.length) previa.push(aprovados.length + ' aprovado(s)');
+    if (faltam > 0) previa.push(faltam + ' sem marcar');
+    rbReply.textContent = previa.join('  ·  ');
+    rbReply.classList.add('live');
+    rbCopy.disabled = false;
+    salvar();
+  }
+
+  radios.forEach(function (r) {
+    r.addEventListener('click', function () {
+      var grupo = r.getAttribute('name');
+      if (ultimo[grupo] === r.value) {
+        r.checked = false;
+        ultimo[grupo] = null;
+      } else {
+        ultimo[grupo] = r.value;
+      }
+      update();
+    });
+  });
+
+  caixas.forEach(function (ta) {
+    ta.addEventListener('input', function () { crescer(ta); update(); });
+  });
+
+  rbClear.addEventListener('click', function () {
+    radios.forEach(function (r) { r.checked = false; });
+    caixas.forEach(function (ta) { ta.value = ''; crescer(ta); });
+    ultimo = {};
+    update();
+  });
+
+  // Copia com fallback para file://, onde navigator.clipboard costuma ser
+  // bloqueada.
+  function copiar(texto, btn, rotulo, rotuloOk) {
+    function pronto() {
+      btn.classList.add('copied');
+      btn.textContent = rotuloOk;
+      setTimeout(function () {
+        btn.classList.remove('copied');
+        btn.textContent = rotulo;
+      }, 1600);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      pronto();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(pronto, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  rbCopy.addEventListener('click', function () {
+    if (respostaAtual) copiar(respostaAtual, rbCopy, 'copiar resposta', 'copiado');
+  });
+
+  restaurar();
+  caixas.forEach(crescer);
+  update();
+})();
+</script>
+</body>
+</html>

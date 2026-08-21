@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relatório final — pipeline citogenética, 20/08/2026</title>
+<style>
+  :root {
+    --ivory:#FAF9F5; --paper:#FFFFFF; --slate:#141413;
+    --clay:#D97757; --clay-d:#B85C3E; --clay-bg:#FDF6F2;
+    --oat:#E3DACC;
+    --olive:#788C5D; --olive-d:#5E7047; --olive-bg:#F1F5EA;
+    --ice:#5F7A8A; --ice-d:#4A626F; --ice-bg:#EDF2F5;
+    --g100:#F0EEE6; --g200:#E6E3DA; --g300:#D1CFC5; --g500:#87867F; --g700:#3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ivory); color:var(--slate);
+         font-family:var(--sans); line-height:1.62; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:880px; margin:0 auto; padding:0 24px 40px; }
+
+  header.topo { padding:56px 0 6px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.12em;
+             text-transform:uppercase; color:var(--g500); margin-bottom:16px; }
+  h1 { font-family:var(--serif); font-size:38px; line-height:1.16; margin:0 0 14px;
+       font-weight:600; letter-spacing:-0.01em; }
+  .lede { font-size:16.5px; color:var(--g700); max-width:70ch; margin:0 0 10px; }
+  .lede b { color:var(--slate); }
+
+  .placar { display:flex; gap:10px; flex-wrap:wrap; margin:24px 0 4px; }
+  .placar div { flex:1; min-width:132px; padding:14px 16px; border:1px solid var(--g200);
+                border-radius:10px; background:var(--paper); }
+  .placar .n { font-family:var(--serif); font-size:29px; line-height:1.1; }
+  .placar .r { font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+               text-transform:uppercase; color:var(--g500); margin-top:6px; }
+
+  .divider { display:flex; align-items:center; gap:16px; margin:48px 0 22px;
+             font-family:var(--mono); font-size:12px; letter-spacing:.12em;
+             text-transform:uppercase; color:var(--g500); }
+  .divider::before, .divider::after { content:""; flex:1; height:1px; background:var(--g300); }
+
+  .cartao { border:1px solid var(--g200); border-left:3px solid var(--g300);
+            border-radius:10px; background:var(--paper); padding:22px 24px; margin-bottom:18px; }
+  .cartao.st-concordo { border-left-color:var(--olive); }
+  .cartao.st-discordo { border-left-color:var(--clay); }
+  .cartao.st-ressalva, .cartao.st-comentario { border-left-color:var(--ice); }
+
+  .cab { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  .num-secao { font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+               text-transform:uppercase; color:var(--g500); }
+  h3 { font-family:var(--serif); font-size:21px; margin:0; font-weight:600; }
+  .estado { font-family:var(--mono); font-size:11px; padding:2px 9px; border-radius:99px;
+            margin-left:auto; color:var(--g500); border:1px solid transparent; }
+  .estado.s-concordo { color:var(--olive-d); background:var(--olive-bg); border-color:var(--olive); }
+  .estado.s-discordo { color:var(--clay-d); background:var(--clay-bg); border-color:var(--clay); }
+  .estado.s-ressalva, .estado.s-comentario { color:var(--ice-d); background:var(--ice-bg); border-color:var(--ice); }
+
+  p { margin:0 0 12px; font-size:14.5px; color:var(--g700); max-width:72ch; }
+  p b { color:var(--slate); }
+  code { font-family:var(--mono); font-size:12.5px; background:var(--g100);
+         padding:1px 5px; border-radius:4px; }
+
+  .tbwrap { overflow-x:auto; margin:14px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th { text-align:left; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+       text-transform:uppercase; color:var(--g500); font-weight:500;
+       padding:8px 10px; border-bottom:1px solid var(--g300); }
+  td { padding:8px 10px; border-bottom:1px solid var(--g200); color:var(--g700); }
+  td b { color:var(--slate); }
+  tr.marca td { background:var(--clay-bg); }
+  tr.bom td { background:var(--olive-bg); }
+  .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .lq { font-family:var(--mono); font-size:11.5px; color:var(--g500); }
+
+  .caixa { border-radius:8px; padding:14px 16px; margin:16px 0; font-size:14px; max-width:72ch; }
+  .caixa.aviso { background:var(--clay-bg); border:1px solid var(--clay); color:var(--clay-d); }
+  .caixa.calma { background:var(--ice-bg); border:1px solid var(--ice); color:var(--ice-d); }
+  .caixa.ok { background:var(--olive-bg); border:1px solid var(--olive); color:var(--olive-d); }
+
+  ul { margin:0 0 12px; padding-left:20px; }
+  li { font-size:14px; color:var(--g700); margin-bottom:7px; max-width:72ch; }
+  li b { color:var(--slate); }
+
+  .tri { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:18px 0 10px;
+         padding-top:14px; border-top:1px dashed var(--g300); }
+  .tri label { display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+               font-size:13.5px; padding:5px 13px; border:1px solid var(--g300);
+               border-radius:99px; background:var(--paper); user-select:none; }
+  .tri label:hover { border-color:var(--g500); }
+  .tri input { accent-color:var(--slate); margin:0; }
+  .tri label:has(input:checked) { border-color:var(--slate); background:var(--slate); color:var(--ivory); }
+  .limpa-um { margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--g500);
+              background:none; border:none; cursor:pointer; text-decoration:underline; padding:4px; }
+  textarea.cmt { width:100%; min-height:38px; resize:vertical; padding:9px 11px;
+                 border:1px solid var(--g300); border-radius:6px; background:var(--paper);
+                 font-family:var(--sans); font-size:13.5px; line-height:1.55; color:var(--slate); }
+  textarea.cmt:focus { outline:2px solid var(--ice); outline-offset:-1px; border-color:var(--ice); }
+
+  .barra { position:sticky; bottom:0; z-index:20; margin:38px -24px 0; padding:14px 24px 16px;
+           background:var(--paper); border-top:1px solid var(--g300);
+           box-shadow:0 -6px 20px rgba(0,0,0,.06); }
+  .barra-topo { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .contadores { font-family:var(--mono); font-size:11.5px; color:var(--g500);
+                display:flex; gap:14px; flex-wrap:wrap; }
+  .contadores b { color:var(--slate); font-weight:600; }
+  .barra button.acao { font-family:var(--sans); font-size:13px; padding:8px 16px;
+                       border-radius:6px; border:1px solid var(--slate); cursor:pointer;
+                       background:var(--slate); color:var(--ivory); }
+  .barra button.acao.secundaria { background:var(--paper); color:var(--g700); border-color:var(--g300); }
+  .barra .espaco { margin-left:auto; display:flex; gap:8px; }
+  pre.previa { margin:12px 0 0; padding:12px 14px; max-height:170px; overflow:auto;
+               background:var(--g100); border:1px solid var(--g200); border-radius:6px;
+               font-family:var(--mono); font-size:11.5px; line-height:1.6; color:var(--g700);
+               white-space:pre-wrap; word-break:break-word; }
+  footer { margin-top:32px; font-size:12.5px; color:var(--g500); max-width:74ch; line-height:1.7; }
+  @media print { .tri, textarea.cmt, .barra { display:none; } body { background:#fff; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="topo">
+  <div class="eyebrow">Tese · biomonitorização citogenética · relatório final · 20/08/2026</div>
+  <h1>Relatório final</h1>
+  <p class="lede grande">Estado consolidado da análise depois de duas rodadas de revisão. A pipeline
+  foi executada hoje; todos os números desta página vieram dos arquivos que ela escreveu.</p>
+  <p class="lede">As conclusões científicas, com a investigação completa da coincidência com Cury et
+  al., estão no documento companheiro <code>CONCLUSOES_2026-08-20.html</code>. Aqui está <b>o que a
+  análise fez, com que decisões, e o que saiu em arquivo</b>.</p>
+
+  <div class="placar">
+    <div><div class="n">414</div><div class="r">participantes</div></div>
+    <div><div class="n">365</div><div class="r">expostos analisados</div></div>
+    <div><div class="n">49</div><div class="r">com alteração</div></div>
+    <div><div class="n">18</div><div class="r">tabelas · 5 figuras</div></div>
+    <div><div class="n">123</div><div class="r">testes automatizados</div></div>
+  </div>
+</header>
+
+<div class="divider">1 · Quem entrou na análise</div>
+
+<div class="cartao" id="cS1">
+  <div class="cab"><span class="num-secao">seção 1</span><h3>Da planilha aos 414</h3>
+    <span class="estado" data-estado="S1"></span></div>
+  <p>Foram lidas <b>433 fichas</b>. As exclusões saem derivadas da marcação de cor da própria
+  planilha, não de uma lista digitada — se alguém pintar mais uma linha, o notebook acompanha
+  sozinho.</p>
+  <div class="tbwrap"><table>
+    <tr><th>Grupo</th><th class="num">Bruto</th><th>Excluídos</th><th class="num">Final</th></tr>
+    <tr><td>Exposto — 6 escolas de Santo Amaro</td><td class="num">378</td>
+      <td>12 sem questionário + 1 por contagem insuficiente</td><td class="num"><b>365</b></td></tr>
+    <tr><td>Controle — UFBA, Salvador</td><td class="num">55</td>
+      <td>6 sem coleta de células bucais</td><td class="num"><b>49</b></td></tr>
+  </table></div>
+  <p>O grupo exposto ficou acima da amostra mínima de 353 calculada na metodologia. A ficha 224 foi
+  a única exclusão por lista: pontuou <b>423 células</b> contra o mínimo de 2.000 do protocolo.</p>
+  <div class="caixa aviso"><b>As lâminas do grupo controle não foram analisadas.</b> Não existe
+  desfecho citogenético no controle, e portanto nenhuma comparação de dano celular entre os grupos é
+  possível. O contraste exposto × controle vive apenas na caracterização sociodemográfica.</div>
+  <div class="tri">
+    <label><input type="radio" name="rS1" data-n="S1" value="Concordo"> Concordo</label>
+    <label><input type="radio" name="rS1" data-n="S1" value="Discordo"> Discordo</label>
+    <button type="button" class="limpa-um" data-n="S1">limpar</button></div>
+  <textarea class="cmt" data-n="S1" data-rotulo="1 · quem entrou na análise"
+    placeholder="Concordância parcial, dúvida ou comentário…"></textarea>
+</div>
+
+<div class="divider">2 · O resultado principal</div>
+
+<div class="cartao" id="cS2">
+  <div class="cab"><span class="num-secao">seção 2</span><h3>Prevalência por escola</h3>
+    <span class="estado" data-estado="S2"></span></div>
+  <p>Medida principal do estudo, e a menos sensível a como se conta o dado ausente: depende apenas
+  de a criança ter ou não apresentado alteração.</p>
+  <div class="tbwrap"><table>
+    <tr><th>Escola</th><th class="num">n</th><th class="num">Casos</th><th class="num">Prevalência</th><th>IC 95% (Wilson)</th></tr>
+    <tr class="marca"><td>Stela Mutti</td><td class="num">22</td><td class="num">6</td><td class="num"><b>27,3%</b></td><td>13,2 – 48,2%</td></tr>
+    <tr><td>Edvaldo M. Boaventura</td><td class="num">47</td><td class="num">9</td><td class="num">19,1%</td><td>10,4 – 32,5%</td></tr>
+    <tr><td>Elpídio Paranhos</td><td class="num">63</td><td class="num">11</td><td class="num">17,5%</td><td>10,0 – 28,6%</td></tr>
+    <tr><td>Nazareth Falcão</td><td class="num">61</td><td class="num">9</td><td class="num">14,8%</td><td>8,0 – 25,7%</td></tr>
+    <tr><td>Francisco Pinto</td><td class="num">82</td><td class="num">11</td><td class="num">13,4%</td><td>7,7 – 22,4%</td></tr>
+    <tr class="bom"><td>Círculo Operário</td><td class="num">90</td><td class="num">3</td><td class="num"><b>3,3%</b></td><td>1,1 – 9,3%</td></tr>
+    <tr><td><b>Exposto</b></td><td class="num"><b>365</b></td><td class="num"><b>49</b></td><td class="num"><b>13,4%</b></td><td>—</td></tr>
+  </table></div>
+  <p><b>Seis testes numa família, corrigidos por Benjamini-Hochberg dentro dela</b> — todos
+  significativos depois do ajuste. A prevalência sai por teste de permutação; os cinco marcadores,
+  por Kruskal-Wallis sobre a frequência.</p>
+  <div class="tbwrap"><table>
+    <tr><th>Alvo</th><th>Teste</th><th class="num"><i>p</i></th><th class="num"><i>p</i> ajustado</th></tr>
+    <tr class="marca"><td><b>prevalência</b></td><td><b>permutação (10.000)</b></td><td class="num">0,0168</td><td class="num"><b>0,0314</b></td></tr>
+    <tr><td>células normais</td><td>Kruskal-Wallis</td><td class="num">0,0166</td><td class="num">0,0314</td></tr>
+    <tr><td>cariólise</td><td>Kruskal-Wallis</td><td class="num">0,0172</td><td class="num">0,0314</td></tr>
+    <tr><td>binucleadas</td><td>Kruskal-Wallis</td><td class="num">0,0209</td><td class="num">0,0314</td></tr>
+    <tr><td>picnose</td><td>Kruskal-Wallis</td><td class="num">0,0348</td><td class="num">0,0418</td></tr>
+    <tr><td>cariorrexe</td><td>Kruskal-Wallis</td><td class="num">0,0433</td><td class="num">0,0433</td></tr>
+  </table></div>
+  <div class="caixa ok"><b>Por que permutação, e não qui-quadrado.</b> A tabela é 6 × 2, formato em
+  que o Fisher exato não está definido, e o qui-quadrado exigiria contagem esperada de ao menos 5 —
+  Stela Mutti espera 2,95. A permutação não depende dessa aproximação. Os dois dão o mesmo resultado
+  (0,0168 contra 0,0168), então <b>a conclusão não se apoia na escolha do teste</b>.</div>
+  <div class="tri">
+    <label><input type="radio" name="rS2" data-n="S2" value="Concordo"> Concordo</label>
+    <label><input type="radio" name="rS2" data-n="S2" value="Discordo"> Discordo</label>
+    <button type="button" class="limpa-um" data-n="S2">limpar</button></div>
+  <textarea class="cmt" data-n="S2" data-rotulo="2 · prevalência por escola"
+    placeholder="Concordância parcial, dúvida ou comentário…"></textarea>
+</div>
+
+<div class="divider">3 · O que não deu sinal</div>
+
+<div class="cartao" id="cS3">
+  <div class="cab"><span class="num-secao">seção 3</span><h3>Características individuais e comparabilidade dos grupos</h3>
+    <span class="estado" data-estao="S3" data-estado="S3"></span></div>
+  <p><b>24 testes, nenhum com sinal.</b> Quatro covariáveis do questionário — sexo, água da EMBASA em
+  casa, filtro, consumo de peixe — contra a prevalência e contra cinco marcadores. O menor <i>p</i>
+  bruto é <b>0,383</b>; depois da correção, nenhum fica abaixo de 1,00.</p>
+  <p>Na caracterização da amostra (365 expostos × 49 controle), duas variáveis diferem entre os
+  grupos e <b>devem constar como confundidores na discussão</b>:</p>
+  <div class="tbwrap"><table>
+    <tr><th>Variável</th><th>Teste</th><th class="num"><i>p</i></th></tr>
+    <tr class="marca"><td>idade</td><td>Mann-Whitney</td><td class="num"><b>0,003</b></td></tr>
+    <tr class="marca"><td>posse de filtro de água</td><td>Fisher exato</td><td class="num"><b>0,010</b></td></tr>
+  </table></div>
+  <p>Sexo, cor da pele, consumo de peixe, água da EMBASA e escolaridade dos pais não diferem.</p>
+  <div class="tri">
+    <label><input type="radio" name="rS3" data-n="S3" value="Concordo"> Concordo</label>
+    <label><input type="radio" name="rS3" data-n="S3" value="Discordo"> Discordo</label>
+    <button type="button" class="limpa-um" data-n="S3">limpar</button></div>
+  <textarea class="cmt" data-n="S3" data-rotulo="3 · características individuais"
+    placeholder="Concordância parcial, dúvida ou comentário…"></textarea>
+</div>
+
+<div class="divider">4 · Correlação e componentes principais</div>
+
+<div class="cartao" id="cS4">
+  <div class="cab"><span class="num-secao">seção 4</span><h3>Spearman e PCA, nas 49 lâminas com contagem</h3>
+    <span class="estado" data-estado="S4"></span></div>
+  <p><b>Spearman</b> responde: quando um tipo de dano aparece numa lâmina, os outros aparecem junto?
+  O número vai de −1 a +1. São dez pares entre os cinco marcadores que variam;
+  <b>seis sobrevivem à correção</b>.</p>
+  <div class="tbwrap"><table>
+    <tr><th>Par</th><th class="num">rho</th><th>IC 95% bootstrap</th><th class="num"><i>p</i> ajustado</th></tr>
+    <tr class="marca"><td>cariólise × células normais</td><td class="num">−0,99</td><td>−1,00 a −0,97</td><td class="num">&lt;0,001</td></tr>
+    <tr><td>binucleadas × picnose</td><td class="num">0,68</td><td>0,47 a 0,82</td><td class="num">&lt;0,001</td></tr>
+    <tr><td>binucleadas × cariorrexe</td><td class="num">0,44</td><td>—</td><td class="num">0,005</td></tr>
+  </table></div>
+  <div class="caixa aviso"><b>O par mais forte não é um achado.</b> As sete frequências somam 1.000
+  por construção; a cariólise é a categoria alterada dominante, então células normais é praticamente
+  o complemento dela. <b>rho = −0,99 é aritmética, não biologia</b> — e é o par mais tentador de
+  citar errado. Pela mesma razão, a quinta componente do PCA tem variância zero.</div>
+  <p><b>PCA</b> procura poucos “resumos” que capturem a maior parte da variação. As duas primeiras
+  componentes somam <b>77,1%</b>: quase toda a diferença entre as crianças cabe em dois eixos. É
+  ferramenta de descrição, não teste — não produz <i>p</i> e não prova associação.</p>
+  <div class="tri">
+    <label><input type="radio" name="rS4" data-n="S4" value="Concordo"> Concordo</label>
+    <label><input type="radio" name="rS4" data-n="S4" value="Discordo"> Discordo</label>
+    <button type="button" class="limpa-um" data-n="S4">limpar</button></div>
+  <textarea class="cmt" data-n="S4" data-rotulo="4 · Spearman e PCA"
+    placeholder="Concordância parcial, dúvida ou comentário…"></textarea>
+</div>
+
+<div class="divider">5 · Água e contexto regulatório</div>
+
+<div class="cartao" id="cS5">
+  <div class="cab"><span class="num-secao">seção 5</span><h3>Sete pontos de coleta, oito elementos com limite</h3>
+    <span class="estado" data-estado="S5"></span></div>
+  <p>Uma linha por ponto de coleta — uma escola, ou a referência da EMBASA em Salvador — e uma coluna
+  por elemento com limite na Portaria GM/MS nº 888/2021. <b>A escola é a unidade, não o
+  elemento.</b></p>
+  <div class="tbwrap"><table>
+    <tr><th>Ponto</th><th class="num">Alumínio</th><th class="num">Bário</th><th class="num">Cromo</th><th class="num">Ferro</th><th class="num">Outros 4</th></tr>
+    <tr><td>B1 — EMBASA (referência)</td><td class="num">0,28×</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num">0,29×</td><td class="num lq">&lt;LQ</td></tr>
+    <tr><td>E1 — Círculo Operário</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td></tr>
+    <tr><td>E2 — Stela Mutti</td><td class="num lq">&lt;LQ</td><td class="num">0,09×</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td></tr>
+    <tr><td>E3 — Francisco Pinto</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td></tr>
+    <tr><td>E4 — Edvaldo M. Boaventura</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td></tr>
+    <tr class="marca"><td>E5 — Elpídio Paranhos</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num"><b>2,18×</b></td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td></tr>
+    <tr><td>E6 — Nazareth Falcão</td><td class="num lq">&lt;LQ</td><td class="num">0,10×</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td><td class="num lq">&lt;LQ</td></tr>
+  </table></div>
+  <div class="caixa calma"><b>&lt;LQ significa “abaixo do que o laboratório consegue medir”, e não
+  “zero”.</b> Por isso não entra como zero em conta nenhuma. Três escolas aparecem só com &lt;LQ:
+  não ficaram de fora — é que nada com limite foi quantificado nelas.</div>
+  <p><b>Um único elemento acima do limite entre os sete pontos analisados</b>: cromo em Elpídio
+  Paranhos. E o contraponto que precisa acompanhá-lo: essa escola tem a terceira prevalência entre
+  seis, e a de maior prevalência não tem elemento algum acima do limite.</p>
+  <div class="caixa aviso"><b>O cromo não entra na correlação ecológica.</b> Um único ponto medido —
+  a correlação não é estimável. Só cálcio, potássio, sódio, magnésio e flúor têm pontos suficientes
+  (<code>MINIMO_DE_PARES = 4</code>), e nenhum deles tem excedência. Com seis unidades, os
+  coeficientes são <b>descritivos</b>: nenhum <i>p</i> é reportado, porque anunciar significância
+  com n = 6 seria enganoso.</div>
+  <div class="tri">
+    <label><input type="radio" name="rS5" data-n="S5" value="Concordo"> Concordo</label>
+    <label><input type="radio" name="rS5" data-n="S5" value="Discordo"> Discordo</label>
+    <button type="button" class="limpa-um" data-n="S5">limpar</button></div>
+  <textarea class="cmt" data-n="S5" data-rotulo="5 · água e contexto regulatório"
+    placeholder="Concordância parcial, dúvida ou comentário…"></textarea>
+</div>
+
+<div class="divider">6 · As decisões que você tomou</div>
+
+<div class="cartao" id="cS6">
+  <div class="cab"><span class="num-secao">seção 6</span><h3>Cinco decisões, e o que cada uma obriga a declarar</h3>
+    <span class="estado" data-estado="S6"></span></div>
+  <p>Nenhuma delas alterou o <i>n</i>. Todas estão registradas no design da análise e nas notas
+  metodológicas do notebook.</p>
+  <div class="tbwrap"><table>
+    <tr><th>Decisão</th><th>O que ficou</th><th>O que a tese precisa dizer</th></tr>
+    <tr><td><b>Lâminas curtas</b></td><td>as seis abaixo de 2.000 células ficam</td>
+      <td>a linha de corte caiu entre 423 e 1.015 — decisão caso a caso, não limiar a priori</td></tr>
+    <tr><td><b>Faixa etária</b></td><td>os oito fora de 6–14 ficam</td>
+      <td>a amostra não corresponde exatamente aos critérios de inclusão</td></tr>
+    <tr><td><b>Dados composicionais</b></td><td>sem transformação log-razão</td>
+      <td>o artefato é declarado, e o artigo de referência <b>não</b> serve de precedente</td></tr>
+    <tr><td><b>Dado ausente</b></td><td>branco = contagem completa que deu zero</td>
+      <td>é premissa declarada, não valor medido; dela depende o <i>n</i> ser 365 e não 49</td></tr>
+    <tr><td><b>Pontos F do laudo</b></td><td>fora da pesquisa</td>
+      <td>vêm do banco anterior; a afirmação sobre excedência é escopada aos sete pontos</td></tr>
+  </table></div>
+  <div class="tri">
+    <label><input type="radio" name="rS6" data-n="S6" value="Concordo"> Concordo</label>
+    <label><input type="radio" name="rS6" data-n="S6" value="Discordo"> Discordo</label>
+    <button type="button" class="limpa-um" data-n="S6">limpar</button></div>
+  <textarea class="cmt" data-n="S6" data-rotulo="6 · as decisões tomadas"
+    placeholder="Concordância parcial, dúvida ou comentário…"></textarea>
+</div>
+
+<div class="divider">7 · O que saiu em arquivo</div>
+
+<div class="cartao" id="cS7">
+  <div class="cab"><span class="num-secao">seção 7</span><h3>18 tabelas, 5 figuras, e a garantia de que nada vaza</h3>
+    <span class="estado" data-estado="S7"></span></div>
+  <p>Tudo em <code>src/outputs/banco_atual/</code>, regenerado a cada execução. Os resultados
+  principais:</p>
+  <ul>
+    <li><b>prevalencia_por_escola.csv</b> — a tabela do resultado principal, com IC de Wilson</li>
+    <li><b>testes_escolas.csv</b> e <b>testes_covariaveis.csv</b> — 6 e 24 testes, com o nome do
+    teste aplicado e o <i>p</i> ajustado em coluna</li>
+    <li><b>caracterizacao_amostra.csv</b> — a primeira tabela do capítulo de Resultados</li>
+    <li><b>contagem_convencao_artigo.csv</b> — os 49 na convenção de Cury et al., para a comparação
+    sair sem conta à mão</li>
+    <li><b>spearman_pares.csv</b>, <b>spearman_top_pares_bootstrap.csv</b>, <b>pca_*.csv</b>,
+    <b>correlacao_ecologica.csv</b>, <b>razao_vmp_agua.csv</b></li>
+    <li>Conferências que <b>não são resultado</b>: <b>laminas_fora_de_2000.csv</b>,
+    <b>idade_fora_da_faixa.csv</b>, <b>relatorio_coercao.csv</b></li>
+  </ul>
+  <div class="caixa ok"><b>Nenhum artefato contém coluna de identificação.</b> O notebook falha alto
+  se algum contiver — a verificação abre cada CSV exportado e procura por nome, telefone, CPF, RG,
+  endereço e responsável nos cabeçalhos, comparando por palavra inteira. <b>123 testes automatizados</b>
+  cobrem os n, o nome do teste estatístico aplicado, a lista de artefatos e a execução do notebook do
+  topo ao fim.</div>
+  <div class="tri">
+    <label><input type="radio" name="rS7" data-n="S7" value="Concordo"> Concordo</label>
+    <label><input type="radio" name="rS7" data-n="S7" value="Discordo"> Discordo</label>
+    <button type="button" class="limpa-um" data-n="S7">limpar</button></div>
+  <textarea class="cmt" data-n="S7" data-rotulo="7 · artefatos exportados"
+    placeholder="Concordância parcial, dúvida ou comentário…"></textarea>
+</div>
+
+<div class="divider">8 · O que ainda não está fechado</div>
+
+<div class="cartao" id="cS8">
+  <div class="cab"><span class="num-secao">seção 8</span><h3>Duas coisas, e nenhuma é técnica</h3>
+    <span class="estado" data-estado="S8"></span></div>
+  <p><b>1. Escrever a tese.</b> As doze notas metodológicas do Bloco 14 são a matéria-prima — cada
+  uma já redigida em frase de texto acadêmico, com a ressalva que precisa acompanhar cada resultado.
+  Os pontos que mais pedem cuidado estão no documento de conclusões.</p>
+  <p><b>2. O histórico do repositório.</b> Commits antigos carregam dados de identificação de
+  crianças. A decisão de reescrever o histórico é do pesquisador e segue pendente.</p>
+  <div class="caixa calma">O que <b>não</b> está pendente: a pipeline. Ela roda do topo ao fim, os
+  testes passam, os artefatos são da execução vigente, e as cinco decisões científicas estão
+  tomadas e registradas.</div>
+  <div class="tri">
+    <label><input type="radio" name="rS8" data-n="S8" value="Concordo"> Concordo</label>
+    <label><input type="radio" name="rS8" data-n="S8" value="Discordo"> Discordo</label>
+    <button type="button" class="limpa-um" data-n="S8">limpar</button></div>
+  <textarea class="cmt" data-n="S8" data-rotulo="8 · o que falta"
+    placeholder="Concordância parcial, dúvida ou comentário…"></textarea>
+</div>
+
+<div class="barra">
+  <div class="barra-topo">
+    <div class="contadores">
+      <span>concordo <b id="cConc">0</b></span>
+      <span>discordo <b id="cDisc">0</b></span>
+      <span>ressalva <b id="cRess">0</b></span>
+      <span>comentário <b id="cCome">0</b></span>
+      <span>sem marcar <b id="cVazio">8</b></span>
+    </div>
+    <div class="espaco">
+      <button type="button" class="acao secundaria" id="btLimpar">Limpar tudo</button>
+      <button type="button" class="acao" id="btCopiar">Copiar resposta</button>
+    </div>
+  </div>
+  <pre class="previa" id="previa"></pre>
+</div>
+
+<footer>
+  Execução de 20/08/2026 da pipeline <code>src/notebook/analise_pesquisa_banco_atual.ipynb</code>,
+  sobre <code>planilha_banco_de_dados.xlsx</code>, abas <code>SEM SALIVA</code> e
+  <code>AMOSTRA ÁGUA</code>. Verificada por 123 testes automatizados. Todos os números foram lidos de
+  <code>src/outputs/banco_atual/</code> — nenhum foi transcrito à mão. Nenhum dado de identificação
+  de participante consta desta página.
+</footer>
+
+</div>
+<script>
+(function () {
+  var CHAVE = 'tese_relatorio_final_20260820_v1';
+  var ITENS = ['S1','S2','S3','S4','S5','S6','S7','S8'];
+  var rotulos = {};
+  ITENS.forEach(function (n) {
+    var ta = document.querySelector('textarea.cmt[data-n="' + n + '"]');
+    rotulos[n] = ta ? ta.dataset.rotulo : n;
+  });
+  function caixaDe(n) { return document.querySelector('textarea.cmt[data-n="' + n + '"]'); }
+  function texto(n) { var ta = caixaDe(n); return ta ? ta.value.trim() : ''; }
+  function marcado(n) {
+    var m = document.querySelector('.tri input[data-n="' + n + '"]:checked');
+    return m ? m.value : null;
+  }
+  // Precedencia: discordo vence tudo; concordo + texto = ressalva; texto sozinho = comentario.
+  function estado(n) {
+    var b = marcado(n), c = texto(n);
+    if (b === 'Discordo') return 'discordo';
+    if (b === 'Concordo') return c ? 'ressalva' : 'concordo';
+    return c ? 'comentario' : null;
+  }
+  var LEGIVEL = { concordo:'Concordo', discordo:'Discordo',
+                  ressalva:'Concordo em parte', comentario:'Comentário' };
+  function crescer(ta) { ta.style.height='auto'; ta.style.height=(ta.scrollHeight+2)+'px'; }
+  function pintar(n) {
+    var e = estado(n), cartao = document.getElementById('c' + n);
+    if (cartao) { cartao.className = 'cartao' + (e ? ' st-' + e : ''); }
+    var et = document.querySelector('.estado[data-estado="' + n + '"]');
+    if (et) {
+      et.className = 'estado' + (e ? ' s-' + e : '');
+      et.textContent = e ? LEGIVEL[e] : '';
+    }
+  }
+  function montaResposta() {
+    var g = { concordo:[], discordo:[], ressalva:[], comentario:[] }, vazias = [];
+    ITENS.forEach(function (n) {
+      var e = estado(n);
+      if (!e) { vazias.push(n); return; }
+      g[e].push({ rotulo: rotulos[n], cmt: texto(n) });
+    });
+    var L = [];
+    L.push('Relatorio final 20/08/2026 — revisao (docs/html/RELATORIO_FINAL_2026-08-20.html)');
+    L.push('');
+    if (g.concordo.length) {
+      L.push('CONCORDO: ' + g.concordo.map(function (i) { return i.rotulo; }).join('; '));
+      L.push('');
+    }
+    [['discordo','DISCORDO'], ['ressalva','CONCORDO EM PARTE'],
+     ['comentario','COMENTARIOS (sem tomar posicao)']].forEach(function (par) {
+      var lista = g[par[0]];
+      if (!lista.length) { return; }
+      L.push(par[1] + ':');
+      lista.forEach(function (i) { L.push('- ' + i.rotulo + (i.cmt ? ': ' + i.cmt : '')); });
+      L.push('');
+    });
+    if (vazias.length === ITENS.length) { L.push('(nenhuma secao marcada ainda)'); }
+    else if (vazias.length) { L.push('(' + vazias.length + ' secoes sem marcar: ' + vazias.join(', ') + ')'); }
+    return L.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+  }
+  function contar() {
+    var c = { concordo:0, discordo:0, ressalva:0, comentario:0, vazio:0 };
+    ITENS.forEach(function (n) { var e = estado(n); if (e) { c[e]++; } else { c.vazio++; } });
+    document.getElementById('cConc').textContent = c.concordo;
+    document.getElementById('cDisc').textContent = c.discordo;
+    document.getElementById('cRess').textContent = c.ressalva;
+    document.getElementById('cCome').textContent = c.comentario;
+    document.getElementById('cVazio').textContent = c.vazio;
+  }
+  function salvar() {
+    var d = {};
+    ITENS.forEach(function (n) { d[n] = { b: marcado(n), t: texto(n) }; });
+    try { localStorage.setItem(CHAVE, JSON.stringify(d)); } catch (e) {}
+  }
+  function restaurar() {
+    var bruto = null;
+    try { bruto = localStorage.getItem(CHAVE); } catch (e) { return; }
+    if (!bruto) { return; }
+    var d; try { d = JSON.parse(bruto); } catch (e) { return; }
+    Object.keys(d).forEach(function (n) {
+      var v = d[n] || {};
+      if (v.b) {
+        var r = document.querySelector('.tri input[data-n="' + n + '"][value="' + v.b + '"]');
+        if (r) { r.checked = true; }
+      }
+      var ta = caixaDe(n);
+      if (ta && v.t) { ta.value = v.t; crescer(ta); }
+    });
+  }
+  function atualizar() {
+    ITENS.forEach(pintar); contar();
+    document.getElementById('previa').textContent = montaResposta();
+    salvar();
+  }
+  [].slice.call(document.querySelectorAll('.tri input[type="radio"]')).forEach(function (r) {
+    r.addEventListener('change', atualizar);
+  });
+  [].slice.call(document.querySelectorAll('textarea.cmt')).forEach(function (ta) {
+    ta.addEventListener('input', function () { crescer(ta); atualizar(); });
+  });
+  [].slice.call(document.querySelectorAll('.limpa-um')).forEach(function (b) {
+    b.addEventListener('click', function () {
+      var n = b.dataset.n;
+      var r = document.querySelector('.tri input[data-n="' + n + '"]:checked');
+      if (r) { r.checked = false; }
+      var ta = caixaDe(n); if (ta) { ta.value = ''; crescer(ta); }
+      atualizar();
+    });
+  });
+  document.getElementById('btLimpar').addEventListener('click', function () {
+    if (!confirm('Apagar todas as marcacoes e comentarios?')) { return; }
+    [].slice.call(document.querySelectorAll('.tri input[type="radio"]')).forEach(function (r) { r.checked = false; });
+    [].slice.call(document.querySelectorAll('textarea.cmt')).forEach(function (ta) { ta.value=''; crescer(ta); });
+    atualizar();
+  });
+  document.getElementById('btCopiar').addEventListener('click', function () {
+    var conteudo = montaResposta(), btn = document.getElementById('btCopiar');
+    function avisar(ok) {
+      btn.textContent = ok ? 'Copiado' : 'Selecione e copie acima';
+      setTimeout(function () { btn.textContent = 'Copiar resposta'; }, 1800);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(conteudo).then(function(){avisar(true);}, function(){avisar(false);});
+    } else { avisar(false); }
+  });
+  window.__revisao = { montaResposta: montaResposta, estado: estado, ITENS: ITENS };
+  restaurar(); atualizar();
+})();
+</script>
+</body>
+</html>
