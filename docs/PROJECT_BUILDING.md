@@ -50,6 +50,7 @@ r - Rollback - falhou
 [ ] - https://github.com/b-open-io/statusline instalado?
 [ ] - Leitura do ecc_dashboard.py
 [ ] - Criar a versão de distribuição
+[ ] - No techinical abbreviations
  
 ### Python env
 1 - powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
