@@ -51,7 +51,8 @@ r - Rollback - falhou
 [x] - https://github.com/b-open-io/statusline instalado?
 [ ] - Criar a versão de distribuição
 [x] - Nunca use siglas ou abreviações técnicas sem escrever o termo completo primeiro. Mais informações estão em `docs/no_technical_abbreviations.md`.
-[ ] - Deploy da VPS via SSH
+[n] - Deploy da VPS via SSH
+[n] - Usará streamlit ou tkinter
  
 ### Python env
 1 - powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
